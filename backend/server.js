@@ -1,0 +1,61 @@
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
+
+dotenv.config();
+
+// Fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Connect to Database
+connectDB();
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Static Folders
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/invoices', express.static(path.join(__dirname, 'invoices')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+import itemsRoutes from './routes/items.js';
+import uploadRoutes from './routes/upload.js';
+import salesRoutes from './routes/sales.js';
+import cashSessionsRoutes from './routes/cashSessions.js';
+import usersRoutes from './routes/users.js';
+import authRoutes from './routes/auth.js';
+
+// Routes
+app.use('/api/items', itemsRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/sales', salesRoutes);
+app.use('/api/cash-sessions', cashSessionsRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/auth', authRoutes);
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('SERVER ERROR:', err);
+  res.status(500).json({
+    message: err.message || 'Server Error',
+    error: err
+  });
+});
+
+// Root route
+app.get('/', (req, res) => {
+  res.send('Inventory API is running...');
+});
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
