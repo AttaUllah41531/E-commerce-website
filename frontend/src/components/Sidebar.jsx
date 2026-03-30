@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useProducts } from '../contexts/ProductContext';
-import { LayoutDashboard, Store, AlertTriangle, XCircle, Settings, PackageOpen, ChevronRight } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
+import { LayoutDashboard, Store, AlertTriangle, XCircle, Settings, PackageOpen, ChevronRight, Users } from 'lucide-react';
 
 export function Sidebar() {
   const { categories } = useProducts();
+  const { user, isAdmin } = useUser();
   const location = useLocation();
 
   const isActive = (path) => {
@@ -13,15 +15,14 @@ export function Sidebar() {
 
   const navItemClass = (path) => {
     const active = isActive(path);
-    return `flex items-center justify-between group px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
-      active 
-        ? "bg-blue-600 text-white shadow-lg shadow-blue-900/40 translate-x-1" 
+    return `flex items-center justify-between group px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${active
+        ? "bg-blue-600 text-white shadow-lg shadow-blue-900/40 translate-x-1"
         : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-    }`;
+      }`;
   };
 
   return (
-    <aside className="w-64 h-screen bg-slate-950 text-white flex flex-col shadow-2xl flex-shrink-0 sticky top-0 overflow-y-auto hidden md:flex border-r border-slate-900">
+    <aside className="w-64 h-screen bg-slate-950 text-white hidden md:flex flex-col shadow-2xl flex-shrink-0 sticky top-0 overflow-y-auto border-r border-slate-900">
       {/* Brand */}
       <div className="p-8 mb-2">
         <div className="flex items-center gap-3">
@@ -37,7 +38,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 flex flex-col gap-2">
-        
+
         {/* Section: Overview */}
         <div className="mb-6">
           <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Main Dashboard</p>
@@ -67,11 +68,10 @@ export function Sidebar() {
               <Link
                 key={cat}
                 to={`/store/category/${cat}`}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                  isActive(`/store/category/${cat}`)
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-all ${isActive(`/store/category/${cat}`)
                     ? "text-blue-400 bg-blue-500/10"
                     : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"
-                }`}
+                  }`}
               >
                 <div className={`w-1.5 h-1.5 rounded-full ${isActive(`/store/category/${cat}`) ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-slate-700'}`}></div>
                 <span className="capitalize">{cat}</span>
@@ -102,11 +102,25 @@ export function Sidebar() {
       </nav>
 
       {/* Logout / Settings */}
-      <div className="p-4 mt-auto border-t border-slate-900">
-        <button className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-900 hover:text-white transition-all group">
-          <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+      <div className="p-4 mt-auto border-t border-slate-900 space-y-2">
+        {isAdmin() && (
+          <Link
+            to="/team"
+            className={`flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold transition-all group ${isActive('/team') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40' : 'text-slate-500 hover:bg-slate-900 hover:text-white'
+              }`}
+          >
+            <Users className={`w-5 h-5 group-hover:scale-110 transition-transform duration-500 ${isActive('/team') ? 'text-white' : ''}`} />
+            <span>Team Management</span>
+          </Link>
+        )}
+        <Link
+          to="/settings"
+          className={`flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-sm font-bold transition-all group ${isActive('/settings') ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-500 hover:bg-slate-900 hover:text-white'
+            }`}
+        >
+          <Settings className={`w-5 h-5 group-hover:rotate-90 transition-transform duration-500 ${isActive('/settings') ? 'text-white' : ''}`} />
           <span>Settings</span>
-        </button>
+        </Link>
       </div>
     </aside>
   );

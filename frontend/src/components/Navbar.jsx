@@ -2,36 +2,38 @@ import React from 'react';
 import { Search, Plus, ShoppingCart, Download, Bell, TrendingUp, PackageSearch, LogOut, User as UserIcon } from 'lucide-react';
 import { useShift } from '../contexts/ShiftContext';
 import { useUser } from '../contexts/UserContext';
+import { useSettings } from '../contexts/SettingsContext';
 
-export function Navbar({ 
-  cartCount, 
-  onCartClick, 
-  onAddProduct, 
-  onNewSale, 
+export function Navbar({
+  cartCount,
+  onCartClick,
+  onAddProduct,
+  onNewSale,
   onExport,
   onShiftClick,
-  dailySales, 
-  monthlySales, 
-  yearlySales, 
-  dailyProfit, 
-  monthlyProfit, 
-  yearlyProfit 
+  dailySales,
+  monthlySales,
+  yearlySales,
+  dailyProfit,
+  monthlyProfit,
+  yearlyProfit
 }) {
   const { currentSession } = useShift();
   const { user, logout } = useUser();
-  const fmt = (n) => `Rs. ${(n || 0).toLocaleString('en-PK')}`;
+  const { settings } = useSettings();
+  const fmt = (n) => `${settings.currency || 'Rs.'} ${(n || 0).toLocaleString('en-PK')}`;
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm px-6">
       <div className="flex items-center justify-between h-20 gap-8">
-        
+
         {/* Left: Search Bar */}
         <div className="flex-1 max-w-sm">
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search anything..." 
+            <input
+              type="text"
+              placeholder="Search anything..."
               className="w-full bg-slate-50 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500/10 transition-all outline-none"
             />
           </div>
@@ -63,8 +65,8 @@ export function Navbar({
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
-          
-          <button 
+
+          <button
             onClick={onExport}
             className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
             title="Export Reports"
@@ -72,13 +74,12 @@ export function Navbar({
             <Download className="w-5 h-5" />
           </button>
 
-          <button 
+          <button
             onClick={onShiftClick}
-            className={`p-2.5 rounded-xl transition-all flex items-center gap-2 border ${
-              currentSession 
-                ? "text-red-600 bg-red-50 border-red-100 hover:bg-red-100" 
+            className={`p-2.5 rounded-xl transition-all flex items-center gap-2 border ${currentSession
+                ? "text-red-600 bg-red-50 border-red-100 hover:bg-red-100"
                 : "text-slate-400 border-transparent hover:text-blue-600 hover:bg-blue-50"
-            }`}
+              }`}
             title={currentSession ? "Close Current Shift" : "Open New Shift"}
           >
             <TrendingUp className={`w-5 h-5 ${currentSession ? "animate-pulse" : ""}`} />
@@ -103,12 +104,12 @@ export function Navbar({
 
           {/* User Profile & Logout */}
           <div className="flex items-center gap-2 pl-4 border-l border-slate-100">
-            <div className="flex flex-col items-end hidden md:flex">
+            <div className="hidden md:flex flex-col items-end">
               <span className="text-[10px] font-black text-slate-900 leading-none uppercase tracking-tighter">{user?.fullName}</span>
               <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest">{user?.role}</span>
             </div>
-            
-            <button 
+
+            <button
               onClick={logout}
               className="group relative w-10 h-10 bg-slate-50 hover:bg-red-50 rounded-xl flex items-center justify-center transition-all border border-transparent hover:border-red-100"
               title="Logout"

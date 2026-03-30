@@ -79,6 +79,7 @@ typings/
 
 # Project Specific
 uploads/
+invoices/
 
 # Misc
 *.tgz

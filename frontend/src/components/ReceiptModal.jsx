@@ -1,10 +1,14 @@
 import React, { useRef } from 'react';
 import { X, Printer, ShoppingBag, Download } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
 
 export function ReceiptModal({ isOpen, onClose, sale }) {
   const printRef = useRef(null);
+  const { settings } = useSettings();
 
   if (!isOpen || !sale) return null;
+
+  const currency = settings.currency || 'Rs.';
 
   const handlePrint = () => {
     const content = printRef.current.innerHTML;
@@ -15,21 +19,40 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
         <head>
           <title>Receipt - ${new Date(sale.saleDate).toLocaleDateString()}</title>
           <style>
+            @page { margin: 10mm; }
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Courier New', monospace; padding: 20px; max-width: 400px; margin: auto; font-size: 14px; line-height: 1.4; color: #000; }
+            body { font-family: 'Courier New', monospace; padding: 10px; max-width: 380px; margin: auto; font-size: 13px; line-height: 1.4; color: #000; background: white; }
             .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 12px; margin-bottom: 15px; }
-            .shop-name { font-size: 26px; font-weight: bold; margin-bottom: 4px; }
-            .subtitle { font-size: 13px; color: #333; }
-            .meta { margin: 12px 0; font-size: 13px; }
-            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-            th { text-align: left; border-bottom: 1px dashed #000; padding: 6px 2px; font-size: 12px; text-transform: uppercase; }
-            td { padding: 6px 2px; font-size: 13px; vertical-align: top; }
+            .shop-name { font-size: 24px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; }
+            .subtitle { font-size: 11px; color: #000; margin-top: 2px; }
+            .meta { margin: 12px 0; font-size: 12px; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .flex-col { flex-direction: column; }
+            .items-center { align-items: center; }
+            .text-left { text-align: left; }
+            .text-center { text-align: center; }
             .text-right { text-align: right; }
-            .divider { border-top: 1px dashed #000; margin: 12px 0; }
-            .total-row { font-weight: bold; font-size: 20px; border-top: 1px dashed #000; padding-top: 8px; margin-top: 8px; }
-            .profit-row { font-size: 13px; color: #555; font-style: italic; }
-            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #333; border-top: 1px dashed #000; padding-top: 10px; }
-            @media print { body { padding: 0; width: 100%; max-width: 100%; } .no-print { display: none; } }
+            .font-bold { font-weight: bold; }
+            .font-black { font-weight: 900; }
+            .uppercase { text-transform: uppercase; }
+            
+            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            th { border-bottom: 1px dashed #000; padding: 8px 2px; font-size: 11px; font-weight: bold; }
+            td { padding: 8px 2px; font-size: 12px; vertical-align: top; border-bottom: 1px dotted #eee; }
+            
+            .total-row { font-weight: bold; font-size: 20px; border-top: 2px dashed #000; padding-top: 10px; margin-top: 10px; display: flex; justify-content: space-between; width: 100%; }
+            .divider { border-top: 1px dashed #000; margin: 10px 0; }
+            
+            .footer { text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px dashed #000; display: flex; flex-direction: column; align-items: center; }
+            .footer img { width: 90px; height: 90px; margin-bottom: 12px; border: 1px solid #000; padding: 2px; }
+            .footer p { font-size: 11px; }
+
+            @media print { 
+              body { padding: 0; width: 100%; } 
+              .no-print { display: none; } 
+              img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
           </style>
         </head>
         <body>
@@ -71,9 +94,9 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
           <div ref={printRef} className="bg-white border border-gray-100 rounded-xl p-6 font-mono text-sm shadow-inner">
             {/* Header */}
             <div className="header text-center border-b-2 border-dashed border-gray-400 pb-3 mb-3">
-              <div className="shop-name text-2xl font-black tracking-wide">NexFlow Store</div>
-              <div className="subtitle text-gray-500 text-xs">Inventory Management System</div>
-              <div className="subtitle text-gray-400 text-[11px] mt-1">WhatsApp: +923013241531</div>
+              <div className="shop-name text-2xl font-black tracking-wide">{settings.shopName}</div>
+              <div className="subtitle text-gray-500 text-xs">{settings.address || 'Inventory Management System'}</div>
+              {settings.phone && <div className="subtitle text-gray-400 text-[11px] mt-1">Contact: {settings.phone}</div>}
             </div>
 
             {/* Meta */}
@@ -99,10 +122,10 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-dashed border-gray-300">
-                  <th className="text-left py-1.5 text-[10px] uppercase text-gray-500 font-bold">Item</th>
-                  <th className="text-center py-1.5 text-[10px] uppercase text-gray-500 font-bold px-2">Qty</th>
-                  <th className="text-right py-1.5 text-[10px] uppercase text-gray-500 font-bold">Price</th>
-                  <th className="text-right py-1.5 text-[10px] uppercase text-gray-500 font-bold">Total</th>
+                  <th className="text-left py-1.5 text-[10px] uppercase text-gray-500 font-bold w-[45%]">Item</th>
+                  <th className="text-center py-1.5 text-[10px] uppercase text-gray-500 font-bold w-[15%]">Qty</th>
+                  <th className="text-right py-1.5 text-[10px] uppercase text-gray-500 font-bold w-[20%]">Price</th>
+                  <th className="text-right py-1.5 text-[10px] uppercase text-gray-500 font-bold w-[20%]">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,20 +147,21 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
             <div className="space-y-1">
               <div className="flex justify-between total-row text-lg">
                 <span>TOTAL</span>
-                <span>Rs. {sale.totalAmount?.toLocaleString('en-PK')}</span>
+                <span>{sale.totalAmount?.toLocaleString('en-PK')}</span>
               </div>
-              {sale.totalProfit > 0 && (
-                <div className="flex justify-between profit-row text-[10px] text-green-700">
-                  <span>Profit</span>
-                  <span>Rs. {sale.totalProfit?.toLocaleString('en-PK')}</span>
-                </div>
-              )}
             </div>
 
             {/* Footer */}
-            <div className="footer text-center mt-4 pt-3 border-t border-dashed border-gray-300">
+            <div className="footer text-center mt-4 pt-3 border-t border-dashed border-gray-300 flex flex-col items-center">
+              <div className="mb-3 px-1 py-1 border border-gray-200 rounded-lg inline-block bg-white">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${sale._id}`}
+                  alt="QR Code"
+                  className="w-20 h-20"
+                />
+              </div>
               <p className="text-sm text-gray-700 font-bold">Thank you for your business!</p>
-              <p className="text-[10px] text-gray-400 mt-1">Powered by NexFlow</p>
+              <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-black">Powered by {settings.shopName}</p>
             </div>
           </div>
 

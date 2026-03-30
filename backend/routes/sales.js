@@ -10,15 +10,32 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import Settings from '../models/Settings.js';
+
 // Helper to verify Owner Password (Anti-Theft)
-const verifyOwnerPassword = (req, res, next) => {
-  const password = req.headers['x-owner-password'];
-  const correctPassword = process.env.OWNER_PASSWORD || "admin123";
-  
-  if (password !== correctPassword) {
-    return res.status(403).json({ message: "Owner authorization required for this action." });
+const verifyOwnerPassword = async (req, res, next) => {
+  try {
+    const password = req.headers['x-owner-password'];
+    const userRole = req.headers['x-user-role']?.toLowerCase();
+
+    // Bypass if user is admin
+    const isAdmin = ['admin', 'system admin'].includes(userRole);
+    if (isAdmin) return next();
+
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = new Settings();
+      await settings.save();
+    }
+    const correctPassword = settings.ownerPassword;
+    
+    if (password !== correctPassword) {
+      return res.status(403).json({ message: "Owner authorization required for this action." });
+    }
+    next();
+  } catch (err) {
+    res.status(500).json({ message: "Auth check failed" });
   }
-  next();
 };
 
 // Get all sales

@@ -17,7 +17,12 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-owner-password', 'x-user-role'],
+  exposedHeaders: ['x-owner-password', 'x-user-role']
+}));
 app.use(express.json());
 
 // Static Folders
@@ -31,6 +36,7 @@ import salesRoutes from './routes/sales.js';
 import cashSessionsRoutes from './routes/cashSessions.js';
 import usersRoutes from './routes/users.js';
 import authRoutes from './routes/auth.js';
+import settingsRoutes from './routes/settings.js';
 
 // Routes
 app.use('/api/items', itemsRoutes);
@@ -39,6 +45,7 @@ app.use('/api/sales', salesRoutes);
 app.use('/api/cash-sessions', cashSessionsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

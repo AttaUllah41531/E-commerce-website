@@ -33,7 +33,10 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem('nexflow_shift'); // Clear shift on logout
   };
 
-  const isAdmin = () => user?.role === 'admin';
+  const isAdmin = () => {
+    const role = user?.role?.toLowerCase();
+    return role === 'admin' || role === 'system admin';
+  };
 
   return (
     <UserContext.Provider value={{ user, login, logout, isAdmin, loading }}>

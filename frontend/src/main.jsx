@@ -4,16 +4,19 @@ import App from "./App.jsx";
 import { ProductProvider } from "./contexts/ProductContext.jsx";
 import { ShiftProvider } from "./contexts/ShiftContext.jsx";
 import { UserProvider } from "./contexts/UserContext.jsx";
+import { SettingsProvider } from "./contexts/SettingsContext.jsx";
 import "./styles/index.css";
 
 createRoot(document.getElementById("root")).render(
   <UserProvider>
-    <ProductProvider>
-      <ShiftProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ShiftProvider>
-    </ProductProvider>
+    <SettingsProvider>
+      <ProductProvider>
+        <ShiftProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ShiftProvider>
+      </ProductProvider>
+    </SettingsProvider>
   </UserProvider>
 );
