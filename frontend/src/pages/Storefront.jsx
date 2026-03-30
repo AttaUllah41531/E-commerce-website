@@ -1,18 +1,20 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '../contexts/ProductContext';
 import { FilterBar } from '../components/FilterBar';
 import { ProductCard } from '../components/ProductCard';
 import { Plus } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
 
 export function Storefront({ onAdd }) {
   const { category, status } = useParams();
   const navigate = useNavigate();
-  const { 
-    filteredProducts, 
-    setCategoryFilter, 
+  const { user } = useUser();
+  const {
+    filteredProducts,
+    setCategoryFilter,
     setStatusFilter,
-    loading 
+    loading
   } = useProducts();
 
   // Sync URL params with global context filters automatically
@@ -28,7 +30,7 @@ export function Storefront({ onAdd }) {
       setCategoryFilter("All");
       setStatusFilter("All");
     }
-    
+
     // Cleanup if leaving store
     return () => {
       setCategoryFilter("All");
@@ -46,24 +48,24 @@ export function Storefront({ onAdd }) {
 
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-8">
-      
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-             <div className="w-1.5 h-8 bg-blue-600 rounded-full"></div>
-             <h2 className="text-3xl font-black text-slate-900 tracking-tighter capitalize leading-none">
+            <div className="w-1.5 h-8 bg-blue-600 rounded-full"></div>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter capitalize leading-none">
               {category ? `${category} Products` : status ? `${status} Inventory` : "Master Catalog"}
             </h2>
           </div>
           <p className="text-slate-500 font-medium pl-4">Manage stock and add items directly to your active sales cart.</p>
         </div>
-        {category && (
-          <button 
-            onClick={() => onAdd(category)}
+        {user?.role === 'admin' && (
+          <button
+            onClick={() => onAdd(category || null)}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-bold hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all active:scale-95 w-full md:w-auto justify-center"
           >
             <Plus className="w-5 h-5" />
-            New {category} Product
+            {category ? `New ${category} Product` : 'New Product'}
           </button>
         )}
       </div>
@@ -75,8 +77,8 @@ export function Storefront({ onAdd }) {
       {filteredProducts.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm mt-6">
           <p className="text-gray-500 font-medium">No products match your criteria.</p>
-          <button 
-            onClick={() => navigate('/store')} 
+          <button
+            onClick={() => navigate('/store')}
             className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700"
           >
             Clear all filters
@@ -85,9 +87,9 @@ export function Storefront({ onAdd }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
           {filteredProducts.map((product) => (
-            <ProductCard 
-              key={product._id} 
-              product={product} 
+            <ProductCard
+              key={product._id}
+              product={product}
             />
           ))}
         </div>

@@ -6,9 +6,9 @@ export function Footer() {
 
   return (
     <footer className="mt-12 bg-white border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          
+
           {/* Brand/Logo Section */}
           <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
             <div className="p-1.5 bg-blue-100 rounded-md">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useProducts } from '../contexts/ProductContext';
 import { AnalyticsCards } from '../components/AnalyticsCards';
 import { InventoryTable } from '../components/InventoryTable';
@@ -6,28 +6,16 @@ import { SalesHistory } from '../components/SalesHistory';
 import { LowStockBanner } from '../components/LowStockBanner';
 import { TeamManagement } from '../components/TeamManagement';
 import { useUser } from '../contexts/UserContext';
-import { Plus, Users, LayoutDashboard } from 'lucide-react';
+import { Users, LayoutDashboard, Plus } from 'lucide-react';
 
 export function AdminDashboard({ onAddProduct, onEditProduct, onDeleteProduct, onViewProduct, onExport, onEditSale, onDeleteSale, onReturnSale, onViewSale }) {
   const [activeTab, setActiveTab] = useState('inventory');
   const { user } = useUser();
-  const [showSalesHistory, setShowSalesHistory] = useState(true);
 
   const {
     products, loading,
-    filteredProducts,
-    sortConfig, setSortConfig,
-    currentPage, setCurrentPage,
-    itemsPerPage, setItemsPerPage,
     sales, getStockStatus
   } = useProducts();
-
-  const handleSort = (key) => {
-    setSortConfig((current) => ({
-      key,
-      direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
-    }));
-  };
 
   if (loading) {
     return (
@@ -40,36 +28,31 @@ export function AdminDashboard({ onAddProduct, onEditProduct, onDeleteProduct, o
   // Calculate top level sums directly from products state for AnalyticsCards
   const totalValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
 
-  // Calculate daily, monthly, yearly stats
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const thisYear = new Date(today.getFullYear(), 0, 1);
-
-  const filterSales = (minDate) => sales.filter(s => new Date(s.saleDate) >= minDate);
-
-  const sumSales = (filtered) => filtered.reduce((sum, sale) => sum + sale.totalAmount, 0);
-  const sumProfit = (filtered) => filtered.reduce((sum, sale) => sum + (sale.totalProfit || 0), 0);
-
-  const dailySalesList = filterSales(today);
-  const monthlySalesList = filterSales(thisMonth);
-  const yearlySalesList = filterSales(thisYear);
-
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       {/* Main Overview Section */}
-      <div className="mb-10 space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-10 bg-slate-900 rounded-full"></div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none">
-            Business Overview
-          </h2>
+      <div className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-10 bg-slate-900 rounded-full"></div>
+            <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none">
+              Business Overview
+            </h2>
+          </div>
+          <p className="text-slate-500 font-medium pl-5 max-w-2xl">
+            Real-time summary of your inventory health, sales performance, and recent activity levels.
+          </p>
         </div>
-        <p className="text-slate-500 font-medium pl-5 max-w-2xl">
-          Real-time summary of your inventory health, sales performance, and recent activity levels.
-        </p>
+        {user?.role === 'admin' && (
+          <button
+            onClick={onAddProduct}
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-sm shadow-blue-600/20 active:scale-95 whitespace-nowrap self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            Add Product
+          </button>
+        )}
       </div>
 
       {user?.role === 'admin' && (
@@ -130,8 +113,6 @@ export function AdminDashboard({ onAddProduct, onEditProduct, onDeleteProduct, o
               </div>
               <SalesHistory
                 sales={sales}
-                showSalesHistory={showSalesHistory}
-                setShowSalesHistory={setShowSalesHistory}
                 handleDeleteSale={onDeleteSale}
                 openEditSaleModal={onEditSale}
                 onReturnSale={onReturnSale}

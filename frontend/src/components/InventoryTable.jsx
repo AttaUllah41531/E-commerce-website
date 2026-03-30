@@ -125,19 +125,19 @@ export function InventoryTable({
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead className="bg-slate-50/50 border-b border-gray-100">
                 <tr>
-                  <th className="w-[35%] px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Product Info</th>
-                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("category")}>
+                  <th className="w-[35%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em]">Product Info</th>
+                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("category")}>
                     <div className="flex items-center gap-2">Category {getSortIcon("category")}</div>
                   </th>
-                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("stock")}>
+                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("stock")}>
                     <div className="flex items-center gap-2">Stock {getSortIcon("stock")}</div>
                   </th>
-                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("price")}>
+                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("price")}>
                     <div className="flex items-center gap-2">Price {getSortIcon("price")}</div>
                   </th>
-                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Expiry</th>
-                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Status</th>
-                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] text-right">Actions</th>
+                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em]">Expiry</th>
+                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em]">Status</th>
+                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">

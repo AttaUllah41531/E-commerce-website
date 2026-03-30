@@ -2,8 +2,6 @@ import { Trash2, Edit, Download, Receipt, ShoppingBag, RotateCcw, Eye, FileSprea
 
 export function SalesHistory({
   sales,
-  showSalesHistory,
-  setShowSalesHistory,
   handleDeleteSale,
   openEditSaleModal,
   onReturnSale,

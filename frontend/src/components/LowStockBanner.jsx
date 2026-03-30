@@ -1,20 +1,19 @@
-import React from 'react';
 import { AlertTriangle, MessageCircle } from 'lucide-react';
 import { Badge } from './ui/Badge';
 
-export function LowStockBanner({ products, handleWhatsAppAlert }) {
+export function LowStockBanner({ products }) {
   const lowStockProducts = products.filter(p => p.stock <= p.minStock);
-  
+
   if (lowStockProducts.length === 0) return null;
 
   const outOfStock = lowStockProducts.filter(p => p.stock === 0);
   const lowStock = lowStockProducts.filter(p => p.stock > 0);
-  
+
   // Expiry Alerts
   const today = new Date();
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(today.getDate() + 30);
-  
+
   const expiringSoon = products.filter(p => {
     if (!p.expiryDate) return false;
     const expDate = new Date(p.expiryDate);
@@ -27,7 +26,19 @@ export function LowStockBanner({ products, handleWhatsAppAlert }) {
   });
 
   const handleBulkAlert = () => {
-    // ... existing bulk alert logic ...
+    const phone = import.meta.env.VITE_WHATSAPP_NUMBER;
+    let message = `*NexFlow Inventory Alert*\n\n`;
+    message += `*Low Stock Warning*\n`;
+    lowStock.forEach(p => {
+      message += `• ${p.name}: Only ${p.stock} left\n`;
+    });
+    message += `\n*Out of Stock*\n`;
+    outOfStock.forEach(p => {
+      message += `• ${p.name}: Out of Stock\n`;
+    });
+    message += `\nAction: Restock these items immediately\n\nNexFlow Inventory Management System`;
+    const url = `https://wa.me/${phone.replace("+", "")}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
   };
 
   return (
@@ -37,7 +48,7 @@ export function LowStockBanner({ products, handleWhatsAppAlert }) {
           <AlertTriangle className="w-3.5 h-3.5" />
           <span className="text-[10px] font-black uppercase tracking-widest">Stock Alert</span>
         </div>
-        
+
         <div className="flex flex-wrap gap-2 overflow-x-auto scrollbar-hide py-1">
           {expired.map(p => (
             <Badge key={p._id} variant="danger" className="animate-pulse">
@@ -51,18 +62,18 @@ export function LowStockBanner({ products, handleWhatsAppAlert }) {
           ))}
           {outOfStock.map(p => (
             <Badge key={p._id} variant="danger">
-              {p.name} (Out)
+              Out of Stock: {p.name}
             </Badge>
           ))}
           {lowStock.map(p => (
             <Badge key={p._id} variant="warning">
-              Low: {p.name} ({p.stock})
+              Low Stock: {p.name} ({p.stock} left)
             </Badge>
           ))}
         </div>
       </div>
 
-      <button 
+      <button
         onClick={handleBulkAlert}
         className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-sm active:scale-95 whitespace-nowrap"
       >

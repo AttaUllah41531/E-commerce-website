@@ -23,6 +23,8 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
     const lowStock = allData.filter(p => p.stock > 0 && p.stock <= p.minStock);
     const outOfStock = allData.filter(p => p.stock === 0);
 
+    const borderStyle = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+
     const createInventorySheet = (name, data) => {
       const sheet = workbook.addWorksheet(name);
 
@@ -37,12 +39,18 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
       dateCell.value = `Date: ${new Date().toLocaleDateString("en-PK")}`;
       dateCell.alignment = { horizontal: "center" };
 
+      // Apply borders to Title and Date merged cells (all 6 columns)
+      for (let i = 1; i <= 6; i++) {
+        sheet.getCell(1, i).border = borderStyle;
+        sheet.getCell(2, i).border = borderStyle;
+      }
+
       const headers = ["Product Name", "Category", "Stock", "Min Stock", "Price (Rs.)", "Status"];
       const headerRow = sheet.addRow(headers);
 
       headerRow.eachCell(cell => {
         cell.font = { bold: true };
-        cell.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+        cell.border = borderStyle;
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F4FD' } };
       });
 
@@ -56,7 +64,7 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
           getStockStatus(p.stock ?? 0, p.minStock ?? 0)
         ]);
         row.eachCell(cell => {
-          cell.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+          cell.border = borderStyle;
         });
       });
 
@@ -72,6 +80,7 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
     onClose();
   };
 
+
   // ======================
   // SALES EXPORT
   // ======================
@@ -81,12 +90,13 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
     const returnedSales = [...(sales || [])].filter(s => s.status === 'returned');
 
     const fmt = (n) => (n || 0).toLocaleString('en-PK');
+    const borderStyle = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
 
     const addHeaderRow = (sheet, headers, fgColor = 'FFE8F4FD') => {
       const headerRow = sheet.addRow(headers);
       headerRow.eachCell(cell => {
         cell.font = { bold: true };
-        cell.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+        cell.border = borderStyle;
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fgColor } };
       });
       return headerRow;
@@ -98,10 +108,17 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
     const t1 = txSheet.getCell("A1");
     t1.value = "NexFlow Sales Report";
     t1.font = { size: 16, bold: true };
-    t1.alignment = { horizontal: "center" };
+    t1.alignment = { horizontal: "center", vertical: "middle" };
     txSheet.mergeCells("A2:F2");
     txSheet.getCell("A2").value = `Generated: ${new Date().toLocaleDateString("en-PK")}`;
     txSheet.getCell("A2").alignment = { horizontal: "center" };
+
+    // Borders for transactions title/date
+    for (let i = 1; i <= 6; i++) {
+      txSheet.getCell(1, i).border = borderStyle;
+      txSheet.getCell(2, i).border = borderStyle;
+    }
+
     addHeaderRow(txSheet, ["Date", "Time", "Invoice ID", "Items", "Total (Rs.)", "Status"]);
     sales.forEach(s => {
       const d = new Date(s.saleDate);
@@ -113,7 +130,7 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
         s.totalAmount,
         s.status?.toUpperCase() || 'PAID'
       ]).eachCell(cell => {
-        cell.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+        cell.border = borderStyle;
       });
     });
     txSheet.columns = [{ width: 14 }, { width: 10 }, { width: 15 }, { width: 40 }, { width: 15 }, { width: 12 }];
@@ -123,7 +140,11 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
     sumSheet.mergeCells("A1:B1");
     sumSheet.getCell("A1").value = "Business Summary";
     sumSheet.getCell("A1").font = { size: 14, bold: true };
-    sumSheet.getCell("A1").alignment = { horizontal: "center" };
+    sumSheet.getCell("A1").alignment = { horizontal: "center", vertical: "middle" };
+
+    // Borders for summary title
+    sumSheet.getCell(1, 1).border = borderStyle;
+    sumSheet.getCell(1, 2).border = borderStyle;
 
     const totalRevenue = allSales.reduce((s, x) => s + x.totalAmount, 0);
     const totalReturns = returnedSales.reduce((s, x) => s + x.totalAmount, 0);
@@ -138,7 +159,7 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
     summaryRows.forEach(([label, value]) => {
       const row = sumSheet.addRow([label, value]);
       row.getCell(1).font = { bold: true };
-      row.eachCell(c => c.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } });
+      row.eachCell(c => c.border = borderStyle);
     });
     sumSheet.columns = [{ width: 28 }, { width: 18 }];
 
@@ -146,6 +167,7 @@ export function ExportModal({ isOpen, onClose, products = [], sales = [], catego
     saveAs(new Blob([buffer]), `NexFlow_Sales_${new Date().toISOString().split('T')[0]}.xlsx`);
     onClose();
   };
+
 
   // ======================
   // WHATSAPP EXPORT
