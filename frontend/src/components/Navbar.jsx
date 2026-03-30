@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Plus, ShoppingCart, Download, Bell, TrendingUp, PackageSearch, LogOut, User as UserIcon } from 'lucide-react';
+import { Search, Plus, ShoppingCart, Download, Bell, TrendingUp, PackageSearch, LogOut, User as UserIcon, Menu } from 'lucide-react';
 import { useShift } from '../contexts/ShiftContext';
 import { useUser } from '../contexts/UserContext';
 import { useSettings } from '../contexts/SettingsContext';
@@ -16,7 +16,8 @@ export function Navbar({
   yearlySales,
   dailyProfit,
   monthlyProfit,
-  yearlyProfit
+  yearlyProfit,
+  onMenuClick
 }) {
   const { currentSession } = useShift();
   const { user, logout } = useUser();
@@ -24,17 +25,25 @@ export function Navbar({
   const fmt = (n) => `${settings.currency || 'Rs.'} ${(n || 0).toLocaleString('en-PK')}`;
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm px-6">
-      <div className="flex items-center justify-between h-20 gap-8">
+    <nav className="sticky top-0 z-40 w-full bg-white dark:bg-[#030213] border-b border-gray-100 dark:border-slate-800 shadow-sm px-6">
+      <div className="flex items-center justify-between h-20 gap-4">
 
-        {/* Left: Search Bar */}
-        <div className="flex-1 max-w-sm">
-          <div className="relative group">
+        {/* Left: Search Bar & Hamburger */}
+        <div className="flex-1 max-w-sm flex items-center gap-3">
+          <button
+            onClick={onMenuClick}
+            className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-all"
+            title="Toggle Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          <div className="relative group w-full hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
             <input
               type="text"
               placeholder="Search anything..."
-              className="w-full bg-slate-50 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500/10 transition-all outline-none"
+              className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
             />
           </div>
         </div>
@@ -77,8 +86,8 @@ export function Navbar({
           <button
             onClick={onShiftClick}
             className={`p-2.5 rounded-xl transition-all flex items-center gap-2 border ${currentSession
-                ? "text-red-600 bg-red-50 border-red-100 hover:bg-red-100"
-                : "text-slate-400 border-transparent hover:text-blue-600 hover:bg-blue-50"
+              ? "text-red-600 bg-red-50 border-red-100 hover:bg-red-100"
+              : "text-slate-400 border-transparent hover:text-blue-600 hover:bg-blue-50"
               }`}
             title={currentSession ? "Close Current Shift" : "Open New Shift"}
           >

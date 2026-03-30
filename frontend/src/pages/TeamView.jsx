@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getUsers, createUser, updateUser, deleteUser } from '../services/api';
 import { useUser } from '../contexts/UserContext';
-import { UserPlus, UserMinus, ShieldCheck, Mail, User as UserIcon, MoreVertical, Edit2, Trash2, X, Check, Save, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, ShieldCheck, User as UserIcon, Edit2, Trash2, X, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function TeamView() {

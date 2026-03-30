@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const generateInvoice = async (sale, filePath) => {
+export const generateInvoice = async (sale, filePath, settings = {}) => {
   return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFDocument({ 
@@ -18,6 +18,12 @@ export const generateInvoice = async (sale, filePath) => {
 
       const stream = fs.createWriteStream(filePath);
       doc.pipe(stream);
+
+      // Default values from settings
+      const shopName = settings.shopName || "NEXFLOW INVENTORY";
+      const shopAddress = settings.address || "Smart Inventory & POS System";
+      const shopPhone = settings.phone ? `Contact: ${settings.phone}` : "WhatsApp: +92 301 3241531";
+      const currency = settings.currency || "Rs.";
 
       // ======================
       // 🏪 LOGO & HEADER
@@ -30,10 +36,10 @@ export const generateInvoice = async (sale, filePath) => {
       doc
         .fillColor("#444444")
         .fontSize(20)
-        .text("NEXFLOW INVENTORY", 115, 50, { align: "right" })
+        .text(shopName.toUpperCase(), 115, 50, { align: "right" })
         .fontSize(10)
-        .text("Smart Inventory & POS System", 200, 70, { align: "right" })
-        .text("WhatsApp: +92 301 3241531", 200, 85, { align: "right" })
+        .text(shopAddress, 200, 70, { align: "right" })
+        .text(shopPhone, 200, 85, { align: "right" })
         .moveDown();
 
       // Horizontal Line
@@ -45,11 +51,14 @@ export const generateInvoice = async (sale, filePath) => {
       doc.moveDown(2);
       
       const customerName = sale.customer || "Walk-in Customer";
+      const cashierName = sale.cashierName || "System Admin";
       const invoiceId = sale._id.toString().slice(-8).toUpperCase();
       const date = new Date(sale.saleDate).toLocaleDateString('en-PK', { 
         day: '2-digit', 
         month: 'short', 
-        year: 'numeric' 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
 
       doc
@@ -59,8 +68,8 @@ export const generateInvoice = async (sale, filePath) => {
         .font("Helvetica")
         .fontSize(10)
         .text(`Invoice ID: #${invoiceId}`, 50, 160)
-        .text(`Date: ${date}`, 50, 175)
-        .text(`Customer: ${customerName}`, 50, 190);
+        .text(`Date & Time: ${date}`, 50, 175)
+        .text(`Cashier: ${cashierName}`, 50, 190);
 
       doc
         .font("Helvetica-Bold")
@@ -97,8 +106,8 @@ export const generateInvoice = async (sale, filePath) => {
         
         doc.text(item.name, 50, position);
         doc.text(item.quantity.toString(), 280, position, { width: 50, align: "center" });
-        doc.text(`Rs. ${item.price.toLocaleString('en-PK')}`, 350, position, { width: 80, align: "right" });
-        doc.text(`Rs. ${(item.price * item.quantity).toLocaleString('en-PK')}`, 450, position, { width: 100, align: "right" });
+        doc.text(`${currency} ${item.price.toLocaleString('en-PK')}`, 350, position, { width: 80, align: "right" });
+        doc.text(`${currency} ${(item.price * item.quantity).toLocaleString('en-PK')}`, 450, position, { width: 100, align: "right" });
 
         // Dotted line between items
         doc.strokeColor("#eeeeee").lineWidth(0.5).moveTo(50, position + 18).lineTo(550, position + 18).stroke();
@@ -120,7 +129,7 @@ export const generateInvoice = async (sale, filePath) => {
         .fontSize(14)
         .font("Helvetica-Bold")
         .text("TOTAL AMOUNT", 300, subtotalOverTop + 10)
-        .text(`Rs. ${sale.totalAmount.toLocaleString('en-PK')}`, 450, subtotalOverTop + 10, { width: 100, align: "right" });
+        .text(`${currency} ${sale.totalAmount.toLocaleString('en-PK')}`, 450, subtotalOverTop + 10, { width: 100, align: "right" });
 
       doc.moveDown(4);
 
@@ -145,7 +154,7 @@ export const generateInvoice = async (sale, filePath) => {
         .text("------------------------------------", 350, subtotalOverTop + 100)
         .font("Helvetica-Bold")
         .text("Authorized Signature", 350, subtotalOverTop + 115)
-        .text("NexFlow Inventory Management", 350, subtotalOverTop + 130);
+        .text(`${shopName}`, 350, subtotalOverTop + 130);
 
       // Footer
       doc

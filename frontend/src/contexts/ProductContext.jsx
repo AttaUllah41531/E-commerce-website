@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { getItems, getSales } from '../services/api';
+import { toast } from 'sonner';
 
 const ProductContext = createContext();
 
@@ -38,7 +39,7 @@ export function ProductProvider({ children }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
-  
+
   // Sorting
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -100,18 +101,26 @@ export function ProductProvider({ children }) {
 
   // Cart Actions
   const addToCart = (product) => {
+    if (product.stock <= 0) {
+      toast.error("Cannot add out of stock item to cart.");
+      return;
+    }
+
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.productId === product._id);
       if (existingItem) {
         if (existingItem.quantity >= product.stock) {
+          toast.error(`Only ${product.stock} items available in stock.`);
           return prevCart;
         }
+        toast.success(`Increased ${product.name} quantity`);
         return prevCart.map((item) =>
           item.productId === product._id
             ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.price }
             : item
         );
       }
+      toast.success(`${product.name} added to cart`);
       return [
         ...prevCart,
         {

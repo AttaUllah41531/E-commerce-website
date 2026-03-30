@@ -53,6 +53,7 @@ export default function App() {
   const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authAction, setAuthAction] = useState({ callback: null, title: "", message: "" });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   if (userLoading) return null;
   if (!user) return <LoginView />;
@@ -139,7 +140,8 @@ export default function App() {
         })),
         totalAmount,
         totalProfit,
-        cashierId: user.id
+        cashierId: user.id,
+        cashierName: user.fullName
       };
 
       const newSale = await createSale(saleData);
@@ -195,11 +197,11 @@ export default function App() {
   };
 
   return (
-    <div className="flex bg-gray-50 min-h-screen w-full relative">
+    <div className="flex bg-gray-50 dark:bg-[#030213] min-h-screen w-full relative">
       <Toaster position="top-right" richColors />
 
       {/* Sidebar Navigation */}
-      <Sidebar />
+      <Sidebar isMobileOpen={isMobileMenuOpen} onCloseMobile={() => setIsMobileMenuOpen(false)} />
 
       {/* Main Content Pane */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
@@ -213,6 +215,7 @@ export default function App() {
           dailySales={sumSales(dailySalesList)}
           monthlySales={sumSales(monthlySalesList)}
           yearlySales={sumSales(yearlySalesList)}
+          onMenuClick={() => setIsMobileMenuOpen(true)}
         />
 
         <main className="flex-1 overflow-y-auto p-6 bg-slate-50 scrollbar-hide">

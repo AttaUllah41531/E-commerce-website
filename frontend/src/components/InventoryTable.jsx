@@ -10,7 +10,8 @@ export function InventoryTable({
   onExport
 }) {
   const {
-    filteredProducts: products,
+    filteredProducts: 
+    products,
     handleSort,
     sortConfig,
     getStockStatus,
@@ -123,21 +124,21 @@ export function InventoryTable({
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hidden sm:block">
           <div className="overflow-x-auto scrollbar-hide">
             <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead className="bg-slate-50/50 border-b border-gray-100">
+              <thead className="bg-white border-b border-gray-100 dark:border-gray-100">
                 <tr>
-                  <th className="w-[35%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em]">Product Info</th>
-                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("category")}>
+                  <th className="w-[35%] pl-20 pr-6 py-5 text-[10px] font-black text-black dark:text-black uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 dark:hover:text-blue-600">Product Info</th>
+                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-black dark:text-black uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 dark:hover:text-blue-600 transition-colors" onClick={() => handleSort("category")}>
                     <div className="flex items-center gap-2">Category {getSortIcon("category")}</div>
                   </th>
-                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("stock")}>
+                  <th className="w-[15%] px-6 py-5 text-[10px] font-black text-black dark:text-black uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 dark:hover:text-blue-600 transition-colors" onClick={() => handleSort("stock")}>
                     <div className="flex items-center gap-2">Stock {getSortIcon("stock")}</div>
                   </th>
-                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("price")}>
+                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-black dark:text-black uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 dark:hover:text-blue-600 transition-colors" onClick={() => handleSort("price")}>
                     <div className="flex items-center gap-2">Price {getSortIcon("price")}</div>
                   </th>
-                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em]">Expiry</th>
-                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em]">Status</th>
-                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-dark uppercase tracking-[0.15em] text-right">Actions</th>
+                  <th className="w-[12%] px-6 py-5 text-[10px] font-black text-black dark:text-black uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 dark:hover:text-blue-600">Expiry</th>
+                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-black dark:text-black uppercase tracking-[0.15em] cursor-pointer hover:text-blue-600 dark:hover:text-blue-600">Status</th>
+                  <th className="w-[10%] px-6 py-5 text-[10px] font-black text-black dark:text-black uppercase tracking-[0.15em] text-center cursor-pointer hover:text-blue-600 dark:hover:text-blue-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -201,8 +202,8 @@ export function InventoryTable({
                             {status.label}
                           </Badge>
                         </td>
-                        <td className="px-6 py-6 whitespace-nowrap text-right">
-                          <div className="flex items-center justify-end gap-1 transition-opacity duration-200">
+                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                          <div className="flex items-center justify-center gap-1 transition-opacity duration-200">
                             <button onClick={() => addToCart(product)} className="p-2 text-blue-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-blue-100 rounded-xl transition-all" title="Add to Cart">
                               <ShoppingCart className="w-4 h-4" />
                             </button>

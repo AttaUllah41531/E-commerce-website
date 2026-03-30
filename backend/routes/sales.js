@@ -5,6 +5,7 @@ import Item from '../models/Item.js';
 import CashSession from '../models/CashSession.js';
 import { generateInvoice } from '../utils/generateInvoice.js';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,17 +51,25 @@ router.get('/', async (req, res) => {
 
 // Create a new sale
 router.post('/', async (req, res) => {
-  const { items, totalAmount, totalProfit } = req.body;
+  const { items, totalAmount, totalProfit, cashierName } = req.body;
   
   try {
-    // 1. Create the sale record
+    // 1. Fetch current settings for the invoice
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = new Settings();
+      await settings.save();
+    }
+
+    // 2. Create the sale record
     const sale = new Sale({
       items,
       totalAmount,
-      totalProfit
+      totalProfit,
+      cashierName: cashierName || "System Admin"
     });
     
-    // 2. Update stock for each item
+    // 3. Update stock for each item
     for (const item of items) {
       const product = await Item.findById(item.productId);
       if (!product) {
@@ -75,7 +84,7 @@ router.post('/', async (req, res) => {
     
     const newSale = await sale.save();
 
-    // 3. Update active CashSession (Anti-Theft / Reporting)
+    // 4. Update active CashSession (Anti-Theft / Reporting)
     const activeSession = await CashSession.findOne({ status: 'open' });
     if (activeSession) {
       activeSession.totalSales += totalAmount;
@@ -83,12 +92,16 @@ router.post('/', async (req, res) => {
       await activeSession.save();
     }
 
-    // 4. Generate PDF Invoice
+    // 5. Generate PDF Invoice
     const fileName = `invoice-${newSale._id}.pdf`;
-    const filePath = path.join(__dirname, '..', 'invoices', fileName);
+    const invoicesDir = path.join(__dirname, '..', 'invoices');
+    if (!fs.existsSync(invoicesDir)) {
+      fs.mkdirSync(invoicesDir, { recursive: true });
+    }
+    const filePath = path.join(invoicesDir, fileName);
     
     try {
-      await generateInvoice(newSale, filePath);
+      await generateInvoice(newSale, filePath, settings);
       // Attach invoice URL to response
       const responseData = newSale.toObject();
       responseData.invoiceUrl = `/invoices/${fileName}`;

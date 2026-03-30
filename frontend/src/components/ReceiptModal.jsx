@@ -75,7 +75,7 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto scrollbar-hide">
         {/* Modal Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-200 sticky top-0 bg-white z-10 rounded-t-2xl">
           <div className="flex items-center gap-2">
@@ -91,27 +91,31 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
 
         {/* Receipt Preview */}
         <div className="p-5">
-          <div ref={printRef} className="bg-white border border-gray-100 rounded-xl p-6 font-mono text-sm shadow-inner">
+          <div ref={printRef} className="bg-white border border-gray-100 rounded-xl p-6 font-mono text-sm shadow-inner text-slate-950">
             {/* Header */}
             <div className="header text-center border-b-2 border-dashed border-gray-400 pb-3 mb-3">
-              <div className="shop-name text-2xl font-black tracking-wide">{settings.shopName}</div>
+              <div className="shop-name text-2xl font-black tracking-wide text-black">{settings.shopName}</div>
               <div className="subtitle text-gray-500 text-xs">{settings.address || 'Inventory Management System'}</div>
-              {settings.phone && <div className="subtitle text-gray-400 text-[11px] mt-1">Contact: {settings.phone}</div>}
+              {settings.phone && <div className="subtitle text-gray-600 text-[11px] mt-1 font-bold">Contact: {settings.phone}</div>}
             </div>
 
             {/* Meta */}
-            <div className="meta mb-2 space-y-0.5">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Date:</span>
-                <span className="font-bold">{saleDate.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+            <div className="meta mb-2 space-y-0.5 text-slate-900">
+              <div className="flex justify-between items-center h-5">
+                <span className="text-gray-500 text-[11px] uppercase tracking-wider">Date:</span>
+                <span className="font-bold text-[12px]">{saleDate.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Time:</span>
-                <span className="font-bold">{saleDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              <div className="flex justify-between items-center h-5">
+                <span className="text-gray-500 text-[11px] uppercase tracking-wider">Time:</span>
+                <span className="font-bold text-[12px]">{saleDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Receipt #:</span>
-                <span className="font-bold">{sale._id?.slice(-8).toUpperCase() || 'N/A'}</span>
+              <div className="flex justify-between items-center h-5">
+                <span className="text-gray-500 text-[11px] uppercase tracking-wider">Cashier:</span>
+                <span className="font-bold text-[12px]">{sale.cashierName || "System Admin"}</span>
+              </div>
+              <div className="flex justify-between items-center h-5">
+                <span className="text-gray-500 text-[11px] uppercase tracking-wider">Receipt #:</span>
+                <span className="font-bold text-[12px]">{sale._id?.slice(-8).toUpperCase() || 'N/A'}</span>
               </div>
             </div>
 
@@ -119,7 +123,7 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
             <div className="divider border-t border-dashed border-gray-400 my-2"></div>
 
             {/* Items Table */}
-            <table className="w-full">
+            <table className="w-full text-slate-950">
               <thead>
                 <tr className="border-b border-dashed border-gray-300">
                   <th className="text-left py-1.5 text-[10px] uppercase text-gray-500 font-bold w-[45%]">Item</th>
@@ -131,10 +135,10 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
               <tbody>
                 {sale.items.map((item, idx) => (
                   <tr key={idx} className="border-b border-dotted border-gray-200">
-                    <td className="py-2 text-[11px] font-medium max-w-[120px] truncate">{item.name}</td>
-                    <td className="py-2 text-center text-[11px] font-bold">{item.quantity}</td>
-                    <td className="py-2 text-right text-[11px]">{item.price?.toLocaleString('en-PK')}</td>
-                    <td className="py-2 text-right text-[11px] font-black text-gray-900">{item.subtotal?.toLocaleString('en-PK')}</td>
+                    <td className="py-2 text-[11px] font-bold text-slate-900 max-w-[120px] truncate">{item.name}</td>
+                    <td className="py-2 text-center text-[11px] font-bold text-slate-900">{item.quantity}</td>
+                    <td className="py-2 text-right text-[11px] text-slate-700">{currency} {item.price?.toLocaleString('en-PK')}</td>
+                    <td className="py-2 text-right text-[11px] font-black text-black">{currency} {item.subtotal?.toLocaleString('en-PK')}</td>
                   </tr>
                 ))}
               </tbody>
@@ -144,10 +148,10 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
             <div className="divider border-t border-dashed border-gray-400 my-2"></div>
 
             {/* Totals */}
-            <div className="space-y-1">
-              <div className="flex justify-between total-row text-lg">
+            <div className="space-y-1 text-black">
+              <div className="flex justify-between total-row text-lg font-black">
                 <span>TOTAL</span>
-                <span>{sale.totalAmount?.toLocaleString('en-PK')}</span>
+                <span>{currency} {sale.totalAmount?.toLocaleString('en-PK')}</span>
               </div>
             </div>
 
