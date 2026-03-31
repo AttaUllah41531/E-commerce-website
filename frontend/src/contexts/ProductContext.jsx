@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { getItems, getSales } from '../services/api';
 import { toast } from 'sonner';
+import { useDebounce } from '../hooks/useDebounce';
+
 
 const ProductContext = createContext();
 
@@ -37,6 +39,7 @@ export function ProductProvider({ children }) {
 
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
 
@@ -75,12 +78,12 @@ export function ProductProvider({ children }) {
   };
 
   // Derived State: Filtering & Sorting
-  const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)))];
+  const categories = useMemo(() => ["All", ...Array.from(new Set(products.map((p) => p.category)))], [products]);
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = useMemo(() => products.filter((product) => {
     const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product._id && product._id.toString().includes(searchTerm));
+      product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      (product._id && product._id.toString().includes(debouncedSearchTerm));
     const matchesCategory =
       categoryFilter === "All" || product.category === categoryFilter;
     const status = getStockStatus(product.stock, product.minStock);
@@ -88,16 +91,17 @@ export function ProductProvider({ children }) {
       statusFilter === "All" || status.label === statusFilter;
 
     return matchesSearch && matchesCategory && matchesStatus;
-  });
+  }), [products, debouncedSearchTerm, categoryFilter, statusFilter]);
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  const sortedProducts = useMemo(() => [...filteredProducts].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
     if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
     if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
     return 0;
-  });
+  }), [filteredProducts, sortConfig]);
+
 
   // Cart Actions
   const addToCart = (product) => {
