@@ -4,7 +4,9 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 const api = axios.create({
   baseURL: `${API_BASE}/api`,
+  withCredentials: true,
 });
+
 
 // Add a request interceptor
 api.interceptors.request.use((config) => {

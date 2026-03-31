@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import cookieParser from 'cookie-parser';
+
 
 dotenv.config();
 
@@ -18,12 +20,15 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: '*', 
+  origin: true, // Dynamically allow the origin of the request
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-owner-password', 'x-user-role'],
   exposedHeaders: ['x-owner-password', 'x-user-role']
 }));
 app.use(express.json());
+app.use(cookieParser());
+
 
 // Static Folders
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

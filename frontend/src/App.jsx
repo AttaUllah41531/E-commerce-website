@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import { Sidebar } from "./components/Sidebar";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -15,11 +15,12 @@ import { ExportModal } from "./components/ExportModal";
 import { ShiftModal } from "./components/ShiftModal";
 import { AuthGuardModal } from "./components/auth/AuthGuardModal";
 import { useUser } from "./contexts/UserContext";
+import { useModals } from "./contexts/ModalContext";
 import { LoginView } from "./components/auth/LoginView";
 import { SettingsView } from "./pages/SettingsView";
 
 import { useProducts } from "./contexts/ProductContext";
-import { useShift } from "./contexts/ShiftContext";
+
 import {
   createItem,
   updateItem,
@@ -31,35 +32,18 @@ import {
 } from "./services/api";
 
 import { toast, Toaster } from "sonner";
-import Swal from "sweetalert2";
+
 
 export default function App() {
   const { user, isAdmin, loading: userLoading } = useUser();
   const { cart, clearCart, fetchData, sales } = useProducts();
-
-  // Modal States
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [lastSale, setLastSale] = useState(null);
-  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
-  const [isEditSaleModalOpen, setIsEditSaleModalOpen] = useState(false);
-  const [editingSale, setEditingSale] = useState(null);
-  const [prefilledData, setPrefilledData] = useState(null);
-  const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authAction, setAuthAction] = useState({ callback: null, title: "", message: "" });
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { modals, activeData, openModal, closeModal } = useModals();
 
   if (userLoading) return null;
   if (!user) return <LoginView />;
 
+
   // Stats for Navbar
-  const totalValue = 0; // or calculated natively from products
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -67,8 +51,7 @@ export default function App() {
 
   const filterSales = (minDate) => sales.filter(s => new Date(s.saleDate) >= minDate);
   const sumSales = (filtered) => filtered.filter(s => s.status !== 'returned').reduce((sum, sale) => sum + sale.totalAmount, 0);
-  const sumProfit = (filtered) => filtered.filter(s => s.status !== 'returned').reduce((sum, sale) => sum + (sale.totalProfit || 0), 0);
-  const sumReturns = (filtered) => filtered.filter(s => s.status === 'returned').reduce((sum, sale) => sum + sale.totalAmount, 0);
+
 
   const dailySalesList = filterSales(today);
   const monthlySalesList = filterSales(thisMonth);
@@ -86,24 +69,12 @@ export default function App() {
     }
   };
 
-  // Anti-Theft Auth Helper
-  const requireAuth = (callback, title, message) => {
-    const role = user?.role?.toLowerCase();
-    const isSystemAdmin = ['admin', 'system admin'].includes(role);
-
-    if (isSystemAdmin) {
-      return callback(''); // Bypass with empty password (backend will verify role)
-    }
-    setAuthAction({ callback, title, message });
-    setIsAuthModalOpen(true);
-  };
-
   const handleEditProductSubmit = async (productData) => {
     requireAuth(async (pw) => {
       try {
-        await updateItem(editingProduct._id, productData, pw, user?.role);
+        await updateItem(activeData.product._id, productData, pw, user?.role);
         toast.success("Product updated successfully!");
-        setIsEditModalOpen(false);
+        closeModal("editProduct");
         fetchData();
       } catch (err) {
         toast.error(err.message || "Failed to update product");
@@ -145,17 +116,17 @@ export default function App() {
       };
 
       const newSale = await createSale(saleData);
-      setLastSale(newSale);
+      openModal("receipt", newSale);
       toast.success("Sale completed successfully!");
       clearCart();
-      setIsCartOpen(false);
+      closeModal("cart");
       fetchData();
-      setTimeout(() => setIsReceiptOpen(true), 300);
     } catch (err) {
       console.error(err);
       toast.error("Checkout failed. Please check stock levels.");
     }
   };
+
 
   const handleDeleteSale = async (saleId) => {
     requireAuth(async (pw) => {
@@ -182,13 +153,14 @@ export default function App() {
   };
 
   const handleEditSaleSubmit = async (saleId, updatedItems) => {
+
     requireAuth(async (pw) => {
       try {
         const totalAmount = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
         const totalProfit = updatedItems.reduce((sum, item) => sum + ((item.price - (item.costPrice || 0)) * item.quantity), 0);
         await updateSale(saleId, { items: updatedItems, totalAmount, totalProfit }, pw, user?.role);
         toast.success("Sale updated successfully!");
-        setIsEditSaleModalOpen(false);
+        closeModal("editSale");
         fetchData();
       } catch (err) {
         toast.error("Update failed. Check stock or authorization.");
@@ -196,26 +168,38 @@ export default function App() {
     }, "Authorize Edit", "Modifying completed sales requires owner verification.");
   };
 
+  // Modernized requireAuth helper
+  const requireAuth = (callback, title, message) => {
+    const role = user?.role?.toLowerCase();
+    const isSystemAdmin = ['admin', 'system admin'].includes(role);
+
+    if (isSystemAdmin) {
+      return callback('');
+    }
+    openModal("auth", { callback, title, message });
+  };
+
+
   return (
     <div className="flex bg-gray-50 dark:bg-[#030213] min-h-screen w-full relative">
       <Toaster position="top-right" richColors />
 
       {/* Sidebar Navigation */}
-      <Sidebar isMobileOpen={isMobileMenuOpen} onCloseMobile={() => setIsMobileMenuOpen(false)} />
+      <Sidebar isMobileOpen={modals.mobileMenu} onCloseMobile={() => closeModal("mobileMenu")} />
 
       {/* Main Content Pane */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
         <Navbar
           cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
-          onCartClick={() => setIsCartOpen(true)}
-          onAddProduct={() => setIsAddModalOpen(true)}
-          onNewSale={() => setIsCartOpen(true)}
-          onExport={() => setIsExportModalOpen(true)}
-          onShiftClick={() => setIsShiftModalOpen(true)}
+          onCartClick={() => openModal("cart")}
+          onAddProduct={() => openModal("addProduct")}
+          onNewSale={() => openModal("cart")}
+          onExport={() => openModal("export")}
+          onShiftClick={() => openModal("shift")}
           dailySales={sumSales(dailySalesList)}
           monthlySales={sumSales(monthlySalesList)}
           yearlySales={sumSales(yearlySalesList)}
-          onMenuClick={() => setIsMobileMenuOpen(true)}
+          onMenuClick={() => openModal("mobileMenu")}
         />
 
         <main className="flex-1 overflow-y-auto p-6 bg-slate-50 scrollbar-hide">
@@ -223,110 +207,99 @@ export default function App() {
             <Routes>
               <Route path="/" element={
                 <AdminDashboard
-                  onAddProduct={() => setIsAddModalOpen(true)}
-                  onEditProduct={(p) => { setEditingProduct(p); setIsEditModalOpen(true); }}
+                  onAddProduct={() => openModal("addProduct")}
+                  onEditProduct={(p) => openModal("editProduct", p)}
                   onDeleteProduct={handleDeleteProduct}
-                  onViewProduct={(p) => { setEditingProduct(p); setIsViewModalOpen(true); }}
-                  onExport={() => setIsExportModalOpen(true)}
-                  onEditSale={(sale) => { setEditingSale(sale); setIsEditSaleModalOpen(true); }}
+                  onViewProduct={(p) => openModal("viewProduct", p)}
+                  onExport={() => openModal("export")}
+                  onEditSale={(sale) => openModal("editSale", sale)}
                   onDeleteSale={handleDeleteSale}
                   onReturnSale={handleReturnSale}
-                  onViewSale={(sale) => { setLastSale(sale); setIsReceiptOpen(true); }}
+                  onViewSale={(sale) => openModal("receipt", sale)}
                 />
               } />
 
-              <Route path="/store" element={<Storefront onAdd={() => { setPrefilledData(null); setIsAddModalOpen(true); }} />} />
-              <Route path="/store/category/:category" element={<Storefront onAdd={(cat) => { setPrefilledData({ category: cat }); setIsAddModalOpen(true); }} />} />
-              <Route path="/store/status/:status" element={<Storefront onAdd={() => { setPrefilledData(null); setIsAddModalOpen(true); }} />} />
+              <Route path="/store" element={<Storefront onAdd={() => openModal("addProduct")} />} />
+              <Route path="/store/category/:category" element={<Storefront onAdd={(cat) => openModal("addProduct", { category: cat })} />} />
+              <Route path="/store/status/:status" element={<Storefront onAdd={() => openModal("addProduct")} />} />
               <Route path="/settings" element={<SettingsView />} />
               <Route path="/team" element={isAdmin() ? <TeamView /> : <Navigate to="/" />} />
             </Routes>
           </div>
         </main>
 
+
         <Footer />
       </div>
 
       {/* Modals */}
       <CartModal
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
+        isOpen={modals.cart}
+        onClose={() => closeModal("cart")}
         onCheckout={checkoutCart}
       />
 
       <ProductModal
-        isOpen={isAddModalOpen}
-        onClose={() => {
-          setIsAddModalOpen(false);
-          setPrefilledData(null);
-        }}
+        isOpen={modals.addProduct}
+        onClose={() => closeModal("addProduct")}
         onSave={handleAddProduct}
-        product={prefilledData}
+        product={activeData.prefilledProduct}
         title="Add New Product"
         mode="add"
       />
 
-      {editingProduct && (
-        <>
-          <ProductModal
-            isOpen={isEditModalOpen}
-            onClose={() => {
-              setIsEditModalOpen(false);
-              setTimeout(() => setEditingProduct(null), 300);
-            }}
-            onSave={handleEditProductSubmit}
-            product={editingProduct}
-            title="Edit Product"
-            mode="edit"
-          />
+      <ProductModal
+        isOpen={modals.editProduct}
+        onClose={() => closeModal("editProduct")}
+        onSave={handleEditProductSubmit}
+        product={activeData.product}
+        title="Edit Product"
+        mode="edit"
+      />
 
-          <ProductModal
-            isOpen={isViewModalOpen}
-            onClose={() => {
-              setIsViewModalOpen(false);
-              setTimeout(() => setEditingProduct(null), 300);
-            }}
-            product={editingProduct}
-            title="Product Details"
-            mode="view"
-          />
-        </>
-      )}
+      <ProductModal
+        isOpen={modals.viewProduct}
+        onClose={() => closeModal("viewProduct")}
+        product={activeData.product}
+        title="Product Details"
+        mode="view"
+      />
 
       {/* Receipt Modal */}
       <ReceiptModal
-        isOpen={isReceiptOpen}
-        onClose={() => setIsReceiptOpen(false)}
-        sale={lastSale}
+        isOpen={modals.receipt}
+        onClose={() => closeModal("receipt")}
+        sale={activeData.sale}
       />
 
       <EditSaleModal
-        isOpen={isEditSaleModalOpen}
-        onClose={() => setIsEditSaleModalOpen(false)}
-        sale={editingSale}
+        isOpen={modals.editSale}
+        onClose={() => closeModal("editSale")}
+        sale={activeData.sale}
         onSave={handleEditSaleSubmit}
       />
 
       <ExportModal
-        isOpen={isExportModalOpen}
-        onClose={() => setIsExportModalOpen(false)}
+        isOpen={modals.export}
+        onClose={() => closeModal("export")}
         products={useProducts().products}
         sales={useProducts().sales}
         categories={useProducts().categories}
       />
 
       <ShiftModal
-        isOpen={isShiftModalOpen}
-        onClose={() => setIsShiftModalOpen(false)}
+        isOpen={modals.shift}
+        onClose={() => closeModal("shift")}
       />
 
       <AuthGuardModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        title={authAction.title}
-        message={authAction.message}
-        onConfirm={authAction.callback}
+        isOpen={modals.auth}
+        onClose={() => closeModal("auth")}
+        title={activeData.authAction.title}
+        message={activeData.authAction.message}
+        onConfirm={activeData.authAction.callback}
       />
+
     </div>
   );
 }
