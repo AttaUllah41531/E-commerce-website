@@ -1,4 +1,4 @@
-import { Trash2, Edit, Download, Receipt, ShoppingBag, RotateCcw, Eye, FileSpreadsheet } from 'lucide-react';
+import { Trash2, Edit, Download, Receipt, ShoppingBag, RotateCcw, Eye, FileSpreadsheet, Calendar } from 'lucide-react';
 
 export function SalesHistory({
   sales,
@@ -32,101 +32,91 @@ export function SalesHistory({
         </button>
       </div>
 
-      <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-hide">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-1">
         {sales.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200">
-              <Receipt className="w-6 h-6" />
+          <div className="col-span-full flex flex-col items-center justify-center py-20 bg-slate-50/50 rounded-[2.5rem] border-2 border-dashed border-slate-100 text-center space-y-4">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-slate-200 shadow-sm">
+              <Receipt className="w-8 h-8" />
             </div>
-            <p className="text-sm font-medium text-slate-400">No transactions recorded yet.</p>
+            <div className="space-y-1">
+              <p className="text-base font-black text-slate-900 uppercase tracking-tight">No Transactions</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">History is currently empty</p>
+            </div>
           </div>
         ) : (
           sales.map((sale, index) => (
-            <div key={sale._id} className="relative group animate-in fade-in slide-in-from-right-4 duration-300" style={{ animationDelay: `${index * 50}ms` }}>
-              <div className="flex gap-4">
-                {/* Timeline Line */}
-                <div className="flex flex-col items-center">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${sale.status === 'returned' ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600'
-                    }`}>
-                    <ShoppingBag className="w-5 h-5" />
+            <div
+              key={sale._id}
+              className="group bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-in fade-in zoom-in-95"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              {/* Card Header: Metadata */}
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sale No.</span>
+                    <span className="text-xs font-black text-slate-900">#{sale._id.slice(-6).toUpperCase()}</span>
                   </div>
-                  {index !== sales.length - 1 && <div className="w-0.5 grow bg-slate-100 my-2"></div>}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 pb-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-black text-slate-900 leading-none">
-                          Sale #{sale._id.slice(-4).toUpperCase()}
-                        </p>
-                        {sale.status === 'returned' && (
-                          <span className="text-[8px] font-black bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-100 uppercase">Returned</span>
-                        )}
-                      </div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        {new Date(sale.saleDate).toLocaleDateString('en-PK', { day: '2-digit', month: 'short' })} • {new Date(sale.saleDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                    <p className={`text-sm font-black font-mono ${sale.status === 'returned' ? 'text-red-400 line-through' : 'text-blue-600'}`}>
-                      {fmt(sale.totalAmount)}
+                  <div className="flex items-center gap-1.5 text-slate-400">
+                    <Calendar className="w-3 h-3" />
+                    <p className="text-[9px] font-bold uppercase tracking-widest leading-none">
+                      {new Date(sale.saleDate).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: '2-digit' })} • {new Date(sale.saleDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
+                </div>
+                {sale.status === 'returned' ? (
+                  <span className="px-3 py-1 bg-rose-50 text-rose-600 text-[9px] font-black rounded-full border border-rose-100 uppercase tracking-widest shadow-sm">Returned</span>
+                ) : (
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-full border border-emerald-100 uppercase tracking-widest shadow-sm">Completed</span>
+                )}
+              </div>
 
-                  <div className="flex flex-wrap gap-1.5 mt-3">
+              {/* Card Body: Valuation & Items */}
+              <div className="space-y-5">
+                <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Transaction</p>
+                  <p className={`text-2xl font-black font-mono tracking-tighter ${sale.status === 'returned' ? 'text-rose-400 line-through' : 'text-blue-600'}`}>
+                    {fmt(sale.totalAmount)}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Purchase Details</p>
+                  <div className="flex flex-wrap gap-2">
                     {sale.items.map((item, idx) => (
-                      <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-100">
-                        {item.name} <span className="text-slate-400 ml-1">×{item.quantity}</span>
-                      </span>
+                      <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-100 rounded-xl shadow-sm transition-colors group-hover:border-blue-100">
+                        <span className="text-[10px] font-black text-slate-700">{item.name}</span>
+                        <div className="w-[1px] h-3 bg-slate-100" />
+                        <span className="text-[10px] font-black text-blue-600">x{item.quantity}</span>
+                      </div>
                     ))}
                   </div>
+                </div>
+              </div>
 
-                  {/* Quick Actions (Always Visible) */}
-                  <div className="flex items-center gap-2 mt-4 transition-all">
+              {/* Card Footer: Detailed Actions */}
+              <div className="flex items-center justify-between pt-5 mt-5 border-t border-slate-50">
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => onViewSale(sale)} className="p-2.5 bg-slate-50 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-xl transition-all active:scale-90 shadow-sm" title="View"><Eye className="w-4 h-4" /></button>
+                  {sale.status !== 'returned' && (
+                    <button onClick={() => onReturnSale(sale._id)} className="p-2.5 bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all active:scale-90 shadow-sm" title="Return"><RotateCcw className="w-4 h-4" /></button>
+                  )}
+                  <button onClick={() => openEditSaleModal(sale)} className="p-2.5 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-xl transition-all active:scale-90 shadow-sm" title="Edit"><Edit className="w-4 h-4" /></button>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {sale.invoiceUrl && (
                     <button
-                      onClick={() => onViewSale(sale)}
-                      className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-all"
-                      title="View Details"
+                      onClick={() => {
+                        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+                        window.open(`${apiUrl}${sale.invoiceUrl}`, '_blank');
+                      }}
+                      className="p-2.5 bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-xl transition-all active:scale-90 shadow-sm border border-emerald-100/50"
+                      title="Receipt"
                     >
-                      <Eye className="w-3.5 h-3.5" />
+                      <Download className="w-4 h-4" />
                     </button>
-                    {sale.status !== 'returned' && (
-                      <button
-                        onClick={() => onReturnSale(sale._id)}
-                        className="p-2 bg-slate-50 hover:bg-orange-50 text-slate-400 hover:text-orange-600 rounded-lg transition-all"
-                        title="Return Sale"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => openEditSaleModal(sale)}
-                      className="p-2 bg-slate-50 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-all"
-                      title="Edit"
-                    >
-                      <Edit className="w-3.5 h-3.5" />
-                    </button>
-                    {sale.invoiceUrl && (
-                      <button
-                        onClick={() => {
-                          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-                          window.open(`${apiUrl}${sale.invoiceUrl}`, '_blank');
-                        }}
-                        className="p-2 bg-slate-50 hover:bg-green-50 text-slate-400 hover:text-green-600 rounded-lg transition-all"
-                        title="Receipt"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDeleteSale(sale._id)}
-                      className="p-2 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-all"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  )}
+                  <button onClick={() => handleDeleteSale(sale._id)} className="p-2.5 bg-slate-50 hover:bg-rose-600 text-slate-400 hover:text-white rounded-xl transition-all active:scale-90 shadow-sm" title="Delete"><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
             </div>

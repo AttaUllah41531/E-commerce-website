@@ -29,44 +29,55 @@ export function AdminDashboard({ onAddProduct, onEditProduct, onDeleteProduct, o
   const totalValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
 
   return (
-    <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-700">
 
-      {/* Main Overview Section */}
-      <div className="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Main Overview Section - Upgraded with @container and Premium Tokens */}
+      <div className="@container mb-10 flex flex-col @md:flex-row @md:items-center justify-between gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-10 bg-slate-900 rounded-full"></div>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter leading-none">
+            {/* The "Branding" accent bar */}
+            <div className="w-2 h-10 bg-primary rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"></div>
+            <h2 className="text-3xl @lg:text-4xl font-black text-dark tracking-tighter leading-none">
               Business Overview
             </h2>
           </div>
-          <p className="text-slate-500 font-medium pl-5 max-w-2xl">
+          <p className="text-muted font-medium pl-5 max-w-2xl leading-relaxed">
             Real-time summary of your inventory health, sales performance, and recent activity levels.
           </p>
         </div>
+
         {user?.role === 'admin' && (
           <button
             onClick={onAddProduct}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-sm shadow-blue-600/20 active:scale-95 whitespace-nowrap self-start sm:self-auto"
+            className="group flex items-center gap-2 px-6 py-3 bg-primary text-white hover:bg-primary-hover rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-premium active:scale-95 whitespace-nowrap self-start sm:self-auto"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
             Add Product
           </button>
         )}
       </div>
 
+      {/* Tab Switcher - Upgraded with Glassmorphism feel */}
       {user?.role === 'admin' && (
-        <div className="flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl w-fit mb-8 animate-in fade-in zoom-in-95">
+        <div className="flex items-center gap-1 bg-slate-200/50 backdrop-blur-md p-1.5 rounded-2xl w-fit mb-8 border border-border animate-in slide-in-from-left-4">
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'inventory' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+              activeTab === 'inventory' 
+              ? 'bg-white text-primary shadow-sm ring-1 ring-black/5' 
+              : 'text-muted hover:text-dark'
+            }`}
           >
             <LayoutDashboard className="w-4 h-4" />
             Inventory & Sales
           </button>
           <button
             onClick={() => setActiveTab('team')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'team' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+              activeTab === 'team' 
+              ? 'bg-white text-primary shadow-sm ring-1 ring-black/5' 
+              : 'text-muted hover:text-dark'
+            }`}
           >
             <Users className="w-4 h-4" />
             Team Management
@@ -74,6 +85,7 @@ export function AdminDashboard({ onAddProduct, onEditProduct, onDeleteProduct, o
         </div>
       )}
 
+      {/* Logic Branching (Kept exactly as provided) */}
       {activeTab === 'team' && user?.role === 'admin' ? (
         <TeamManagement />
       ) : (
@@ -85,7 +97,8 @@ export function AdminDashboard({ onAddProduct, onEditProduct, onDeleteProduct, o
             outOfStockProducts={products.filter(p => p.stock === 0)}
           />
 
-          <div className="mt-8">
+          {/* Low Stock Banner - With the NEW Pulse Animation */}
+          <div className="mt-8 animate-pulse-soft">
             <LowStockBanner
               products={products}
               getStockStatus={getStockStatus}
@@ -93,33 +106,44 @@ export function AdminDashboard({ onAddProduct, onEditProduct, onDeleteProduct, o
             />
           </div>
 
-          {/* Vertical Stack: Table & Activity */}
-          <div className="flex flex-col gap-10 mt-10">
+          {/* Vertical Stack: Table & Activity - Upgraded spacing and card containers */}
+          <div className="flex flex-col gap-12 mt-10">
 
-            {/* Inventory Table */}
-            <div className="w-full">
-              <InventoryTable
-                onEdit={onEditProduct}
-                onDelete={onDeleteProduct}
-                onView={onViewProduct}
-                onExport={onExport}
-              />
-            </div>
+            {/* Inventory Table Section */}
+            <section className="w-full space-y-4">
+              <div className="flex items-center gap-2 px-2">
+                 <div className="w-1.5 h-6 bg-primary/30 rounded-full"></div>
+                 <h3 className="text-xl font-black text-dark uppercase tracking-widest">Global Inventory</h3>
+              </div>
+              <div className="bg-card rounded-premium shadow-premium border border-border overflow-hidden">
+                <InventoryTable
+                  onEdit={onEditProduct}
+                  onDelete={onDeleteProduct}
+                  onView={onViewProduct}
+                  onExport={onExport}
+                />
+              </div>
+            </section>
 
             {/* Recent Activity Section */}
-            <div className="w-full">
-              <div className="mb-6 space-y-1">
-                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-widest px-2">Recent Shop Activity</h3>
+            <section className="w-full space-y-4">
+              <div className="flex items-center justify-between px-2">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-dark uppercase tracking-widest">Recent Shop Activity</h3>
+                  <p className="text-[10px] text-muted font-bold tracking-widest">SYNCED WITH CLOUD</p>
+                </div>
               </div>
-              <SalesHistory
-                sales={sales}
-                handleDeleteSale={onDeleteSale}
-                openEditSaleModal={onEditSale}
-                onReturnSale={onReturnSale}
-                onViewSale={onViewSale}
-                onExport={onExport}
-              />
-            </div>
+              <div className="bg-card rounded-premium shadow-premium border border-border overflow-hidden">
+                <SalesHistory
+                  sales={sales}
+                  handleDeleteSale={onDeleteSale}
+                  openEditSaleModal={onEditSale}
+                  onReturnSale={onReturnSale}
+                  onViewSale={onViewSale}
+                  onExport={onExport}
+                />
+              </div>
+            </section>
           </div>
         </>
       )}

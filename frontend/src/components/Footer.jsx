@@ -1,33 +1,38 @@
 import React from 'react';
-import { Package, Heart } from 'lucide-react';
+import { Package, Heart, Zap } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-white border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <footer className="bg-white border-t border-slate-100 shrink-0">
+      <div className="max-w-7xl mx-auto px-6 py-3">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
 
-          {/* Brand/Logo Section */}
-          <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-            <div className="p-1.5 bg-blue-100 rounded-md">
-              <Package className="w-5 h-5 text-blue-600" />
+          {/* Brand/Logo Section - Miniatured */}
+          <div className="flex items-center gap-2 group cursor-default">
+            <div className="p-1 bg-slate-900 rounded-lg group-hover:bg-blue-600 transition-colors duration-500">
+              <Package className="w-3 h-3 text-white" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900 tracking-tight leading-none">NexFlow</h2>
-              <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest leading-none mt-0.5">Inventory Platform</p>
+              <h2 className="text-[10px] font-black text-slate-900 tracking-tighter leading-none">NEXFLOW</h2>
+              <div className="flex items-center gap-1 mt-0.5">
+                <Zap className="w-2 h-2 text-blue-600 fill-current" />
+                <p className="text-[7px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none">Enterprise OS</p>
+              </div>
             </div>
           </div>
 
-          {/* Copyright Section */}
-          <div className="text-sm text-gray-500 font-medium">
-            &copy; {currentYear} NexFlow. All rights reserved.
+          {/* Copyright Section - Minimalist */}
+          <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
+            &copy; {currentYear} <span className="text-slate-900">NexusOS</span>. All rights reserved.
           </div>
 
-          {/* Credits or Links */}
-          <div className="flex items-center gap-1.5 text-sm text-gray-400 font-medium">
-            Built with <Heart className="w-4 h-4 text-red-400 fill-current" /> for Business
+          {/* Credits Section - Thin Badge */}
+          <div className="flex items-center gap-2 px-3 py-1 bg-slate-50/50 rounded-full border border-slate-100">
+            <span className="text-[8px] font-black text-slate-500 uppercase tracking-tight">Built for Performance</span>
+            <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+            <Heart className="w-2.5 h-2.5 text-rose-500 fill-rose-500 animate-pulse" />
           </div>
 
         </div>

@@ -23,77 +23,96 @@ export function LoginView() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo/Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex p-4 bg-white rounded-3xl shadow-xl shadow-blue-500/10 mb-6 group hover:scale-110 transition-transform duration-500">
-            <ShoppingBag className="w-10 h-10 text-blue-600 group-hover:rotate-12 transition-transform" />
+    /* Changed to min-h-svh for better mobile/small screen height handling */
+    <div className="min-h-svh w-full bg-background grid place-items-center p-4 selection:bg-primary/20 relative overflow-x-hidden overflow-y-auto">
+
+      <div className="w-full max-w-[360px] z-10 animate-in fade-in zoom-in-95 duration-700 flex flex-col py-4">
+
+        {/* Compact Logo Section - Reduced margins and sizes */}
+        <div className="text-center mb-6">
+          <div className="inline-flex p-3.5 bg-card rounded-2xl shadow-premium mb-3 group hover:scale-105 transition-transform duration-500 border border-border">
+            <ShoppingBag className="w-8 h-8 text-primary group-hover:rotate-12 transition-transform" />
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter">NexFlow POS</h1>
-          <p className="text-slate-400 font-bold tracking-widest uppercase text-[10px] mt-2">Smart Inventory & Retail Management</p>
+          <p className="text-muted font-bold tracking-[0.15em] uppercase text-[8px] mt-2 opacity-60">
+            Smart Inventory Management
+          </p>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
-          
-          <div className="mb-8">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Staff Login</h2>
-            <p className="text-slate-400 text-sm font-medium">Please sign in to access your dashboard</p>
+        {/* Compact Card - Reduced padding from p-10 to p-7 */}
+        <div className="w-full bg-card rounded-[2rem] shadow-premium p-7 relative border border-border flex flex-col">
+
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-primary rounded-b-full"></div>
+
+          <div className="mb-6 text-center">
+            <h2 className="text-xl font-black text-dark tracking-tight">Staff Login</h2>
+            <p className="text-muted text-[11px] font-medium mt-0.5">Sign in to your session</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 w-full">
             {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-xs font-bold animate-in slide-in-from-top-2">
-                <AlertCircle className="w-4 h-4" />
+              <div className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-red-600 text-[10px] font-bold">
+                <AlertCircle className="w-3 h-3" />
                 {error}
               </div>
             )}
 
-            <div className="space-y-4">
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                  <User className="w-5 h-5" />
+            <div className="space-y-3">
+              {/* Identification */}
+              <div className="space-y-1">
+                <label className="text-[8px] font-black text-muted uppercase tracking-widest pl-1">Username</label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username"
+                    className="w-full bg-slate-50/50 border border-border focus:border-primary/40 rounded-xl py-3 pl-11 pr-4 text-xs font-bold text-dark outline-none transition-all placeholder:text-slate-300"
+                  />
                 </div>
-                <input
-                  type="text"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Username"
-                  className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600/10 focus:bg-white rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-slate-900 outline-none transition-all shadow-sm"
-                />
               </div>
 
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                  <Lock className="w-5 h-5" />
+              {/* Access Key */}
+              <div className="space-y-1">
+                <label className="text-[8px] font-black text-muted uppercase tracking-widest pl-1">Password</label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    className="w-full bg-slate-50/50 border border-border focus:border-primary/40 rounded-xl py-3 pl-11 pr-4 text-xs font-bold text-dark outline-none transition-all placeholder:text-slate-300"
+                  />
                 </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600/10 focus:bg-white rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-slate-900 outline-none transition-all shadow-sm"
-                />
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all disabled:opacity-50"
+              className="w-full py-3.5 bg-dark hover:bg-black text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-premium active:scale-[0.97] transition-all disabled:opacity-50 mt-1"
             >
-              {loading ? "Signing in..." : "Start Session"}
+              {loading ? "Verifying..." : "Start Session"}
             </button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-slate-50 flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-slate-300" />
-            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Secure NexFlow Engine v2.0</span>
+          {/* Secure Footer - More compact */}
+          <div className="mt-8 pt-5 border-t border-border flex items-center justify-center gap-2">
+            <ShieldCheck className="w-3 h-3 text-primary/50" />
+            <span className="text-[8px] font-black text-muted uppercase tracking-widest leading-none">
+              Nexus Engine v2.0
+            </span>
           </div>
         </div>
+      </div>
+
+      {/* Background Blobs - Reduced opacity for cleaner look */}
+      <div className="fixed inset-0 -z-10 pointer-events-none opacity-[0.07]">
+        <div className="absolute top-1/4 -left-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
       </div>
     </div>
   );

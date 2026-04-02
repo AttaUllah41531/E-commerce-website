@@ -16,7 +16,7 @@ export function ShiftModal({ isOpen, onClose }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       if (!currentSession) {
         await startShift(Number(cash));
@@ -40,8 +40,8 @@ export function ShiftModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose} />
-      
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md relative overflow-hidden animate-in zoom-in-95 duration-300">
+
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md min-w-[350px] relative overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Header Decor */}
         <div className={`h-2 ${currentSession ? 'bg-red-500' : 'bg-blue-600'}`}></div>
 
@@ -64,13 +64,13 @@ export function ShiftModal({ isOpen, onClose }) {
 
           {success ? (
             <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-               <div className={`w-20 h-20 rounded-full flex items-center justify-center animate-bounce shadow-xl ${currentSession ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'}`}>
-                  <CheckCircle2 className="w-10 h-10" />
-               </div>
-               <p className="text-xl font-black text-slate-900 leading-none">
-                 Shift {currentSession ? 'Closed' : 'Started'}!
-               </p>
-               <p className="text-sm text-slate-400 font-medium">Session records updated successfully.</p>
+              <div className={`w-20 h-20 rounded-full flex items-center justify-center animate-bounce shadow-xl ${currentSession ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'}`}>
+                <CheckCircle2 className="w-10 h-10" />
+              </div>
+              <p className="text-xl font-black text-slate-900 leading-none">
+                Shift {currentSession ? 'Closed' : 'Started'}!
+              </p>
+              <p className="text-sm text-slate-400 font-medium">Session records updated successfully.</p>
             </div>
           ) : (
             <form onSubmit={handleAction} className="space-y-6">
@@ -83,15 +83,15 @@ export function ShiftModal({ isOpen, onClose }) {
 
               {currentSession && (
                 <div className="bg-slate-50 p-6 rounded-3xl space-y-4">
-                   <div className="flex justify-between items-center">
-                     <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Expected Cash</span>
-                     <span className="text-lg font-black text-slate-900">Rs. {currentSession.expectedCash.toLocaleString('en-PK')}</span>
-                   </div>
-                   <div className="h-px bg-slate-200"></div>
-                   <div className="flex justify-between items-center text-blue-600">
-                     <span className="text-xs font-black uppercase tracking-widest">Shift Sales</span>
-                     <span className="text-sm font-black">+{currentSession.totalSales.toLocaleString('en-PK')}</span>
-                   </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Expected Cash</span>
+                    <span className="text-lg font-black text-slate-900">Rs. {currentSession.expectedCash.toLocaleString('en-PK')}</span>
+                  </div>
+                  <div className="h-px bg-slate-200"></div>
+                  <div className="flex justify-between items-center text-blue-600">
+                    <span className="text-xs font-black uppercase tracking-widest">Shift Sales</span>
+                    <span className="text-sm font-black">+{currentSession.totalSales.toLocaleString('en-PK')}</span>
+                  </div>
                 </div>
               )}
 
@@ -129,11 +129,10 @@ export function ShiftModal({ isOpen, onClose }) {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-5 rounded-[1.5rem] font-black text-lg flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${
-                  currentSession 
-                  ? 'bg-slate-900 text-white hover:bg-black shadow-slate-900/20' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/20'
-                }`}
+                className={`w-full py-5 rounded-[1.5rem] font-black text-lg flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl disabled:opacity-50 ${currentSession
+                    ? 'bg-slate-900 text-white hover:bg-black shadow-slate-900/20'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/20'
+                  }`}
               >
                 {loading ? (
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
@@ -149,12 +148,12 @@ export function ShiftModal({ isOpen, onClose }) {
 
           {/* Tips Section */}
           <div className="mt-8 pt-8 border-t border-slate-50 flex items-center gap-3 text-slate-400">
-             <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0">
-               <Wallet className="w-4 h-4" />
-             </div>
-             <p className="text-[10px] font-bold leading-tight">
-               Recording accurate opening and closing cash is critical for preventing theft and maintaining balanced reports.
-             </p>
+            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0">
+              <Wallet className="w-4 h-4" />
+            </div>
+            <p className="text-[10px] font-bold leading-tight">
+              Recording accurate opening and closing cash is critical for preventing theft and maintaining balanced reports.
+            </p>
           </div>
         </div>
       </div>
