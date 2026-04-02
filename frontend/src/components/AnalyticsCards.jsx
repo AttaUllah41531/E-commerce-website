@@ -4,7 +4,13 @@ import { StatCard } from './ui/StatCard';
 
 export function AnalyticsCards({ totalProducts, totalValue, lowStockProducts = [], outOfStockProducts = [] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    /**
+     * FIX: Added 'w-full' and 'items-stretch' to the grid.
+     * This ensures that on smaller screens or during transitions, 
+     * the cards maintain their intended width and don't "pill" (shrink).
+     */
+    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
       <StatCard 
         title="Total Products" 
         value={totalProducts} 

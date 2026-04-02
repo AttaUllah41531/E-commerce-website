@@ -7,7 +7,7 @@ import { UserProvider } from "./contexts/UserContext.jsx";
 import { SettingsProvider } from "./contexts/SettingsContext.jsx";
 import { ModalProvider } from "./contexts/ModalContext.jsx";
 import { ThemeProvider } from "next-themes";
-import "./styles/index.css";
+import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

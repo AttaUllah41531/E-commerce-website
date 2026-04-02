@@ -73,9 +73,9 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
   const saleDate = new Date(sale.saleDate);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto scrollbar-hide">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="absolute inset-0" onClick={onClose} />
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md min-w-[350px] relative animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto scrollbar-hide">
         {/* Modal Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-200 sticky top-0 bg-white z-10 rounded-t-2xl">
           <div className="flex items-center gap-2">
@@ -159,9 +159,15 @@ export function ReceiptModal({ isOpen, onClose, sale }) {
             <div className="footer text-center mt-4 pt-3 border-t border-dashed border-gray-300 flex flex-col items-center">
               <div className="mb-3 px-1 py-1 border border-gray-200 rounded-lg inline-block bg-white">
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${sale._id}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                    `Shop: ${settings.shopName}\n` +
+                    `ID: ${sale._id?.slice(-8).toUpperCase()}\n` +
+                    `Date: ${new Date(sale.saleDate).toLocaleString('en-PK')}\n` +
+                    `Total: ${currency} ${sale.totalAmount?.toLocaleString('en-PK')}\n` +
+                    `Items:\n${sale.items.map(i => `• ${i.name} x${i.quantity}`).join('\n')}`
+                  )}`}
                   alt="QR Code"
-                  className="w-20 h-20"
+                  className="w-24 h-24"
                 />
               </div>
               <p className="text-sm text-gray-700 font-bold">Thank you for your business!</p>

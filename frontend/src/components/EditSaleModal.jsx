@@ -3,12 +3,12 @@ import { X, Save, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function EditSaleModal({ isOpen, onClose, sale, onSave }) {
+  // --- ORIGINAL LOGIC START ---
   const [items, setItems] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (sale && isOpen) {
-      // Deep copy to avoid mutating the original prop
       setItems(JSON.parse(JSON.stringify(sale.items)));
     }
   }, [sale, isOpen]);
@@ -48,60 +48,72 @@ export function EditSaleModal({ isOpen, onClose, sale, onSave }) {
 
   const originalTotal = sale.totalAmount;
   const newTotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+  // --- ORIGINAL LOGIC END ---
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl relative animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Edit Sale #{sale._id.slice(-6)}</h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg">
+    /* FIX: 'grid place-items-center' and 'z-50' to maintain modal hierarchy */
+    <div className="fixed inset-0 z-50 grid place-items-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-hidden">
+      <div className="absolute inset-0" onClick={onClose} />
+      
+      {/* FIX: Explicit max-width and flex-col to prevent width collapse (Pill effect) */}
+      <div className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-premium overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90svh]">
+        
+        {/* Header - Fixed height */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 shrink-0 bg-white">
+          <div>
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">Edit Sale</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transaction ID: #{sale._id.slice(-6).toUpperCase()}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-5">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-3 mb-5 text-amber-800 text-sm">
-            <ShieldAlert className="w-5 h-5 flex-shrink-0" />
-            <p><strong>Note:</strong> Increasing quantity will reduce current inventory stock. Reducing quantity will return items to stock.</p>
+        {/* Scrollable Area */}
+        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+          <div className="bg-amber-50 border border-amber-100 rounded-[1.5rem] p-4 flex gap-3 text-amber-800 text-xs">
+            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-amber-500" />
+            <p className="font-medium">
+              <strong>Inventory Warning:</strong> Increasing quantity reduces stock. Reducing quantity returns items to your inventory.
+            </p>
           </div>
 
-          <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+          <div className="space-y-3">
             {items.map((item, idx) => {
               const originalItem = sale.items[idx];
               const diff = item.quantity - originalItem.quantity;
               
               return (
-                <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg gap-3">
+                <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl gap-4 group hover:bg-white hover:shadow-sm transition-all">
                   <div className="flex-1">
-                    <p className="font-bold text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">Rs. {item.price.toLocaleString('en-PK')} each</p>
+                    <p className="text-sm font-black text-slate-900">{item.name}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Price: Rs. {item.price.toLocaleString('en-PK')}</p>
                   </div>
                   
-                  <div className="flex items-center gap-4 border-t sm:border-t-0 sm:border-l border-gray-200 pt-3 sm:pt-0 sm:pl-4">
+                  <div className="flex items-center gap-6">
                     <div className="flex flex-col items-center">
-                      <label className="text-[10px] uppercase font-bold text-gray-400 mb-1">Quantity</label>
-                      <div className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden">
+                      <label className="text-[9px] uppercase font-black text-slate-400 mb-1 tracking-tighter">Adjust Qty</label>
+                      <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                         <button 
                           onClick={() => handleQuantityChange(idx, item.quantity - 1)}
-                          className="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-300"
+                          className="px-3 py-1 hover:bg-slate-50 text-slate-600 font-bold border-r border-slate-200 transition-colors"
                         >-</button>
-                        <span className="w-12 text-center font-bold text-sm">{item.quantity}</span>
+                        <span className="w-10 text-center font-black text-xs text-slate-900">{item.quantity}</span>
                         <button 
                           onClick={() => handleQuantityChange(idx, item.quantity + 1)}
-                          className="px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-300"
+                          className="px-3 py-1 hover:bg-slate-50 text-slate-600 font-bold border-l border-slate-200 transition-colors"
                         >+</button>
                       </div>
                       {diff !== 0 && (
-                        <span className={`text-[10px] font-bold mt-1 ${diff > 0 ? 'text-red-500' : 'text-green-500'}`}>
-                          {diff > 0 ? '-' : '+'}{Math.abs(diff)} to stock
+                        <span className={`text-[9px] font-black mt-1 uppercase ${diff > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+                          {diff > 0 ? 'Stock -' : 'Stock +'}{Math.abs(diff)}
                         </span>
                       )}
                     </div>
                     
-                    <div className="flex flex-col items-end w-24">
-                      <label className="text-[10px] uppercase font-bold text-gray-400 mb-1">Subtotal</label>
-                      <span className="font-bold text-gray-900">Rs. {item.subtotal.toLocaleString('en-PK')}</span>
+                    <div className="flex flex-col items-end min-w-[100px]">
+                      <label className="text-[9px] uppercase font-black text-slate-400 mb-1 tracking-tighter">Line Total</label>
+                      <span className="font-black text-sm text-blue-600">Rs. {item.subtotal.toLocaleString('en-PK')}</span>
                     </div>
                   </div>
                 </div>
@@ -110,30 +122,31 @@ export function EditSaleModal({ isOpen, onClose, sale, onSave }) {
           </div>
         </div>
 
-        <div className="p-5 border-t border-gray-200 bg-gray-50 rounded-b-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+        {/* Footer - Fixed/Sticky */}
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
             <div>
-              <p className="text-xs text-gray-500">Original Total</p>
-              <p className="font-bold text-gray-500 line-through">Rs. {originalTotal.toLocaleString('en-PK')}</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Original</p>
+              <p className="font-bold text-slate-400 line-through text-sm">Rs. {originalTotal.toLocaleString('en-PK')}</p>
             </div>
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-8 w-px bg-slate-200"></div>
             <div>
-              <p className="text-xs font-bold text-blue-600 uppercase">New Total</p>
-              <p className="text-xl font-black text-gray-900">Rs. {newTotal.toLocaleString('en-PK')}</p>
+              <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Revised Total</p>
+              <p className="text-xl font-black text-slate-900">Rs. {newTotal.toLocaleString('en-PK')}</p>
             </div>
           </div>
           
-          <div className="flex gap-2 w-full sm:w-auto">
-            <button onClick={onClose} className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+          <div className="flex gap-3 w-full sm:w-auto">
+            <button onClick={onClose} className="flex-1 sm:flex-none px-6 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all">
               Cancel
             </button>
             <button 
               onClick={handleSave}
               disabled={isSubmitting || originalTotal === newTotal}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-premium transition-all"
             >
-              {isSubmitting ? <span className="animate-spin text-xl leading-none">⟳</span> : <Save className="w-4 h-4" />}
-              Save Changes
+              {isSubmitting ? <span className="animate-spin">⟳</span> : <Save className="w-4 h-4" />}
+              Update Sale
             </button>
           </div>
         </div>

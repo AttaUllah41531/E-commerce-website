@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import { Sidebar } from "./components/Sidebar";
@@ -38,6 +39,7 @@ export default function App() {
   const { user, isAdmin, loading: userLoading } = useUser();
   const { cart, clearCart, fetchData, sales } = useProducts();
   const { modals, activeData, openModal, closeModal } = useModals();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   if (userLoading) return null;
   if (!user) return <LoginView />;
@@ -51,6 +53,7 @@ export default function App() {
 
   const filterSales = (minDate) => sales.filter(s => new Date(s.saleDate) >= minDate);
   const sumSales = (filtered) => filtered.filter(s => s.status !== 'returned').reduce((sum, sale) => sum + sale.totalAmount, 0);
+  const sumProfit = (filtered) => filtered.filter(s => s.status !== 'returned').reduce((sum, sale) => sum + (sale.totalProfit || 0), 0);
 
 
   const dailySalesList = filterSales(today);
@@ -181,55 +184,65 @@ export default function App() {
 
 
   return (
-    <div className="flex bg-gray-50 dark:bg-[#030213] min-h-screen w-full relative">
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-50 dark:bg-[#030213] w-full">
       <Toaster position="top-right" richColors />
 
-      {/* Sidebar Navigation */}
-      <Sidebar isMobileOpen={modals.mobileMenu} onCloseMobile={() => closeModal("mobileMenu")} />
+      <Navbar
+        isCollapsed={isCollapsed}
+        onToggleSidebar={() => setIsCollapsed(!isCollapsed)}
+        cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
+        onCartClick={() => openModal("cart")}
+        onAddProduct={() => openModal("addProduct")}
+        onNewSale={() => openModal("cart")}
+        onExport={() => openModal("export")}
+        onShiftClick={() => openModal("shift")}
+        dailySales={sumSales(dailySalesList)}
+        monthlySales={sumSales(monthlySalesList)}
+        yearlySales={sumSales(yearlySalesList)}
+        dailyProfit={sumProfit(dailySalesList)}
+        monthlyProfit={sumProfit(monthlySalesList)}
+        yearlyProfit={sumProfit(yearlySalesList)}
+        onMenuClick={() => openModal("mobileMenu")}
+      />
 
-      {/* Main Content Pane */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
-        <Navbar
-          cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
-          onCartClick={() => openModal("cart")}
-          onAddProduct={() => openModal("addProduct")}
-          onNewSale={() => openModal("cart")}
-          onExport={() => openModal("export")}
-          onShiftClick={() => openModal("shift")}
-          dailySales={sumSales(dailySalesList)}
-          monthlySales={sumSales(monthlySalesList)}
-          yearlySales={sumSales(yearlySalesList)}
-          onMenuClick={() => openModal("mobileMenu")}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Sidebar Navigation */}
+        <Sidebar
+          isMobileOpen={modals.mobileMenu}
+          onCloseMobile={() => closeModal("mobileMenu")}
+          isCollapsed={isCollapsed}
         />
 
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-50 scrollbar-hide">
-          <div className="max-w-7xl mx-auto space-y-6">
-            <Routes>
-              <Route path="/" element={
-                <AdminDashboard
-                  onAddProduct={() => openModal("addProduct")}
-                  onEditProduct={(p) => openModal("editProduct", p)}
-                  onDeleteProduct={handleDeleteProduct}
-                  onViewProduct={(p) => openModal("viewProduct", p)}
-                  onExport={() => openModal("export")}
-                  onEditSale={(sale) => openModal("editSale", sale)}
-                  onDeleteSale={handleDeleteSale}
-                  onReturnSale={handleReturnSale}
-                  onViewSale={(sale) => openModal("receipt", sale)}
-                />
-              } />
+        {/* Main Content Pane */}
+        <div className="flex-1 flex flex-col overflow-hidden relative">
+          <main className="flex-1 overflow-y-auto p-6 bg-slate-50 scrollbar-hide">
+            <div className="max-w-7xl mx-auto space-y-6">
+              <Routes>
+                <Route path="/" element={
+                  <AdminDashboard
+                    onAddProduct={() => openModal("addProduct")}
+                    onEditProduct={(p) => openModal("editProduct", p)}
+                    onDeleteProduct={handleDeleteProduct}
+                    onViewProduct={(p) => openModal("viewProduct", p)}
+                    onExport={() => openModal("export")}
+                    onEditSale={(sale) => openModal("editSale", sale)}
+                    onDeleteSale={handleDeleteSale}
+                    onReturnSale={handleReturnSale}
+                    onViewSale={(sale) => openModal("receipt", sale)}
+                  />
+                } />
 
-              <Route path="/store" element={<Storefront onAdd={() => openModal("addProduct")} />} />
-              <Route path="/store/category/:category" element={<Storefront onAdd={(cat) => openModal("addProduct", { category: cat })} />} />
-              <Route path="/store/status/:status" element={<Storefront onAdd={() => openModal("addProduct")} />} />
-              <Route path="/settings" element={<SettingsView />} />
-              <Route path="/team" element={isAdmin() ? <TeamView /> : <Navigate to="/" />} />
-            </Routes>
-          </div>
-        </main>
+                <Route path="/store" element={<Storefront onAdd={() => openModal("addProduct")} />} />
+                <Route path="/store/category/:category" element={<Storefront onAdd={(cat) => openModal("addProduct", { category: cat })} />} />
+                <Route path="/store/status/:status" element={<Storefront onAdd={() => openModal("addProduct")} />} />
+                <Route path="/settings" element={<SettingsView />} />
+                <Route path="/team" element={isAdmin() ? <TeamView /> : <Navigate to="/" />} />
+              </Routes>
+            </div>
+          </main>
 
-
-        <Footer />
+          <Footer />
+        </div>
       </div>
 
       {/* Modals */}
@@ -244,6 +257,7 @@ export default function App() {
         onClose={() => closeModal("addProduct")}
         onSave={handleAddProduct}
         product={activeData.prefilledProduct}
+        categories={useProducts().categories}
         title="Add New Product"
         mode="add"
       />
@@ -253,6 +267,7 @@ export default function App() {
         onClose={() => closeModal("editProduct")}
         onSave={handleEditProductSubmit}
         product={activeData.product}
+        categories={useProducts().categories}
         title="Edit Product"
         mode="edit"
       />
@@ -261,6 +276,7 @@ export default function App() {
         isOpen={modals.viewProduct}
         onClose={() => closeModal("viewProduct")}
         product={activeData.product}
+        categories={useProducts().categories}
         title="Product Details"
         mode="view"
       />

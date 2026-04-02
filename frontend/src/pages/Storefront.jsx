@@ -47,17 +47,17 @@ export function Storefront({ onAdd }) {
   }
 
   return (
-    <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-8">
+    <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-4">
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-        <div className="space-y-1">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        <div className="space-y-0.5">
           <div className="flex items-center gap-3">
-            <div className="w-1.5 h-8 bg-blue-600 rounded-full"></div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter capitalize leading-none">
-              {category ? `${category} Products` : status ? `${status} Inventory` : "Master Catalog"}
+            <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+            <h2 className="text-xl font-black text-slate-900 tracking-tighter capitalize leading-none">
+              {category ? `${category}` : status ? `${status}` : "Master Catalog"}
             </h2>
           </div>
-          <p className="text-slate-500 font-medium pl-4">Manage stock and add items directly to your active sales cart.</p>
+          <p className="text-[11px] text-slate-500 font-medium pl-4 uppercase tracking-wider">Manage stock and add items to sales cart.</p>
         </div>
         {user?.role === 'admin' && (
           <button
@@ -70,7 +70,7 @@ export function Storefront({ onAdd }) {
         )}
       </div>
 
-      <div className="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm mb-8">
+      <div className="bg-white p-1 rounded-xl border border-slate-100 shadow-sm mb-3">
         <FilterBar />
       </div>
 
@@ -85,7 +85,7 @@ export function Storefront({ onAdd }) {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mt-2">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product._id}
